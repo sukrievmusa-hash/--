@@ -16,6 +16,7 @@ p{line-height:1.45}
 nav{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:.4em;align-items:center;padding:.5em 1em;background:rgba(10,15,34,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 nav .brand{font-weight:900;margin-right:.6em;white-space:nowrap}
 nav .sp{flex:1}
+@media(max-width:1650px){nav .brand{display:none}}
 .btn{font:inherit;font-weight:800;border:0;border-radius:14px;padding:.55em 1em;background:var(--panel2);color:var(--text);cursor:pointer;touch-action:manipulation;min-height:48px;transition:transform .1s,background .2s}
 .btn:active{transform:scale(.96)}
 .btn.on,.btn.primary{background:var(--acc);color:#1a1a1a}
@@ -111,6 +112,21 @@ details li{margin:.35em 0}
 .legend{display:flex;gap:1em;flex-wrap:wrap;font-size:.85em;color:var(--muted);margin-top:.4em}
 .dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:middle;margin-right:.3em}
 ol.laws li{margin:.45em 0;line-height:1.35}
+.consts{display:flex;flex-wrap:wrap;gap:.5em;margin-top:.6em}
+.consts span{background:var(--panel2);border-radius:12px;padding:.3em .7em;font-weight:700;font-family:"Cambria Math","Times New Roman",serif}
+.task .num{display:inline-block;background:var(--acc);color:#111;font-weight:900;border-radius:12px;padding:.1em .6em;margin-right:.5em}
+.task .tq{font-size:1.1em;line-height:1.45;margin:.4em 0 .7em}
+.task .tb{display:flex;flex-wrap:wrap;gap:.5em}
+.task .tp{margin-top:.6em;padding:.7em 1em;border-radius:14px;line-height:1.55}
+.task .hint{background:rgba(255,209,102,.1);border-left:5px solid var(--acc)}
+.task .sol{background:rgba(76,201,240,.1);border-left:5px solid var(--acc2)}
+.task .ans{background:rgba(6,214,160,.12);border-left:5px solid var(--good);font-weight:800;font-size:1.1em}
+.task table{border-collapse:collapse;margin:.4em 0}
+.task td,.task th{border:1px solid var(--line);padding:.25em .6em;text-align:center}
+#tkModal{position:fixed;inset:0;z-index:40;background:rgba(5,8,20,.88);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:2vh 2vw}
+#tkModal.hidden{display:none!important}
+#tkModal .mbox{background:var(--panel);border:2px solid var(--acc);border-radius:24px;padding:1em 1.5em;width:min(1400px,96vw);font-size:1.3em}
+#tkModal .task .tq{font-size:1.25em}
 </style>
 </head>
 <body>
@@ -121,10 +137,11 @@ ol.laws li{margin:.45em 0;line-height:1.35}
   <button class="btn" data-go="photon">2. Фотон</button>
   <button class="btn" data-go="photoeffect">3. Фотоэффект</button>
   <button class="btn" data-go="duality">4. Дуализм</button>
-  <button class="btn" data-go="games">🎮 5. Игры</button>
+  <button class="btn" data-go="tasks">📚 5. Задачи</button>
+  <button class="btn" data-go="games">🎮 6. Игры</button>
   <span class="sp"></span>
   <button class="btn ghost" id="snd" title="Звук">🔊</button>
-  <button class="btn ghost" id="fs">⛶ Весь экран</button>
+  <button class="btn ghost" id="fs" title="Весь экран">⛶</button>
 </nav>
 
 <!-- ============ 1. INTRO ============ -->
@@ -150,6 +167,7 @@ ol.laws li{margin:.45em 0;line-height:1.35}
       <li><b>12–20 мин.</b> «Фотон»: формулы E = hν, p = h/λ. Ученики двигают ползунок и сравнивают энергию фотонов.</li>
       <li><b>20–30 мин.</b> «Фотоэффект»: виртуальная лаборатория, законы Столетова, уравнение Эйнштейна. Решаем загадку из начала урока.</li>
       <li><b>30–35 мин.</b> «Дуализм»: опыт с двумя щелями, фотоны по одному.</li>
+      <li><b>По желанию / домашнее задание.</b> «Задачи»: задачи 19.1–19.19 из задачника с подсказками и решениями.</li>
       <li><b>35–43 мин.</b> Игры: «Выбей электрон!», «Битва команд», «Волна или частица?».</li>
       <li><b>43–45 мин.</b> Итог: «Свет — это поток фотонов, которые ведут себя как волны».</li>
     </ol>
@@ -270,7 +288,34 @@ ol.laws li{margin:.45em 0;line-height:1.35}
   <div class="card hook"><b>Вывод:</b> свет — это поток фотонов (частиц), но движение каждого фотона подчиняется волновым законам. В одних опытах (фотоэффект) ярче проявляются <span class="part">корпускулярные</span> свойства, в других (интерференция, дифракция) — <span class="wave">волновые</span>.</div>
 </section>
 
-<!-- ============ 5. GAMES ============ -->
+<!-- ============ 5. TASKS ============ -->
+<section id="tasks">
+  <h2>📚 Решаем задачи из задачника (глава 19)</h2>
+  <div class="card">
+    <div class="row">
+      <button class="btn primary" id="tkRandom">🎲 Случайная задача к доске</button>
+      <span style="font-weight:800;margin-left:.5em">Тема:</span>
+      <button class="btn on" data-tf="all">Все</button>
+      <button class="btn" data-tf="ph">Фотон (19.1–19.10)</button>
+      <button class="btn" data-tf="pe">Фотоэффект (19.11–19.19)</button>
+    </div>
+    <details style="margin-top:.7em"><summary>📐 Постоянные и формулы</summary>
+      <div class="consts">
+        <span>h = 6,63·10⁻³⁴ Дж·с</span><span>c = 3·10⁸ м/с</span><span>e = 1,6·10⁻¹⁹ Кл</span><span>mₑ = 9,11·10⁻³¹ кг</span>
+        <span>k = 1,38·10⁻²³ Дж/К</span><span>R = 8,31 Дж/(моль·К)</span><span>N<sub>A</sub> = 6,02·10²³ моль⁻¹</span><span>1 эВ = 1,6·10⁻¹⁹ Дж</span>
+        <span>ε = hν = hc/λ</span><span>m = ε/c² = h/(cλ)</span><span>p = h/λ = ε/c</span><span>hν = A + mv²/2</span><span>eU<sub>з</sub> = mv²/2</span><span>λ₀ = hc/A</span>
+        <span>Удобно: ε (эВ) ≈ 1240 / λ (нм)</span>
+      </div>
+    </details>
+  </div>
+  <div id="tkList"></div>
+</section>
+<div id="tkModal" class="hidden"><div class="mbox">
+  <div class="row" style="justify-content:space-between"><div class="row"><button class="btn" id="tkPrev">◀</button><button class="btn" id="tkNext">▶</button></div><button class="btn ghost" id="tkClose">✕ Закрыть</button></div>
+  <div id="tkBody"></div>
+</div></div>
+
+<!-- ============ 6. GAMES ============ -->
 <section id="games">
   <h2>🎮 Игры</h2>
   <div class="gtabs">
@@ -367,7 +412,7 @@ function confetti(){const cv=$('#confetti'),d=devicePixelRatio||1,W=innerWidth,H
   (function st(){ctx.clearRect(0,0,W,Hh);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.12;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-6,-3,12,7);ctx.restore();});if(++f<260)requestAnimationFrame(st);else ctx.clearRect(0,0,W,Hh);})();}
 
 /* ---------- navigation ---------- */
-const SECTIONS=['intro','photon','photoeffect','duality','games'];
+const SECTIONS=['intro','photon','photoeffect','duality','tasks','games'];
 let active='intro';
 function show(id){if(!SECTIONS.includes(id))id='intro';active=id;
   $$('section').forEach(s=>s.classList.toggle('active',s.id===id));
@@ -428,7 +473,7 @@ function drawPhoton(t){const{ctx,w,h}=PH;if(!w)return;ctx.clearRect(0,0,w,h);
   const mx=w*(L2-100)/900;ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(mx,sy-2);ctx.lineTo(mx-9,sy-16);ctx.lineTo(mx+9,sy-16);ctx.fill();ctx.fillRect(mx-1.5,sy,3,sh);}
 
 /* ---------- 3. photoeffect ---------- */
-const METALS=[{n:'Цезий',s:'Cs',A:1.9},{n:'Калий',s:'K',A:2.2},{n:'Натрий',s:'Na',A:2.3},{n:'Цинк',s:'Zn',A:4.2},{n:'Медь',s:'Cu',A:4.5},{n:'Платина',s:'Pt',A:5.3}];
+const METALS=[{n:'Цезий',s:'Cs',A:1.9},{n:"Калий",s:"K",A:2.0},{n:'Натрий',s:'Na',A:2.3},{n:'Цинк',s:'Zn',A:4.2},{n:'Медь',s:'Cu',A:4.5},{n:'Платина',s:'Pt',A:5.3}];
 const PE={m:METALS[2],l:400,I:60,U:0,ph:[],el:[],hits:[],fl:[],acc:0,cur:0};
 const PC=setup($('#cvPE'));
 $('#peL').style.background=spectrumCSS(150,900);
@@ -659,6 +704,100 @@ $$('.bucket').forEach(b=>b.onclick=()=>{const c=G3.sel;if(!c){$('#g3fb').innerHT
   else{beep(false);G3.err++;$('#g3stat').textContent='Ошибок: '+G3.err;c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');
     $('#g3fb').innerHTML=`<div class="fb no"><b>❌ Подумайте ещё.</b> Подсказка: ${why}</div>`;}});
 $('#g3reset').onclick=g3init;g3init();
+
+/* ---------- 5. tasks ---------- */
+const TASKS=[
+{n:'19.1',t:'ph',q:'Найти массу m фотона: а) красных лучей света (λ = 700 нм); б) рентгеновских лучей (λ = 25 нм); в) гамма-лучей (λ = 1,24 нм).',
+ h:'Масса фотона: m = ε/c², а ε = hc/λ. Значит, <b>m = h/(cλ)</b>.',
+ s:'m = h/(cλ)<br>а) m = 6,63·10⁻³⁴ / (3·10⁸ · 7·10⁻⁷) = 3,16·10⁻³⁶ кг<br>б) m = 6,63·10⁻³⁴ / (3·10⁸ · 2,5·10⁻⁸) = 8,84·10⁻³⁵ кг<br>в) m = 6,63·10⁻³⁴ / (3·10⁸ · 1,24·10⁻⁹) = 1,78·10⁻³³ кг<br><i>Чем короче волна, тем «тяжелее» фотон.</i>',
+ a:'а) 3,2·10⁻³⁶ кг; б) 8,8·10⁻³⁵ кг; в) 1,8·10⁻³³ кг'},
+{n:'19.2',t:'ph',q:'Найти энергию ε, массу m и импульс p фотона, если соответствующая ему длина волны λ = 1,6 нм.',
+ h:'ε = hc/λ; m = ε/c²; p = h/λ.',
+ s:'ε = 6,63·10⁻³⁴ · 3·10⁸ / 1,6·10⁻⁹ = 1,24·10⁻¹⁶ Дж ≈ 777 эВ<br>m = ε/c² = 1,24·10⁻¹⁶ / 9·10¹⁶ = 1,38·10⁻³³ кг<br>p = h/λ = 6,63·10⁻³⁴ / 1,6·10⁻⁹ = 4,14·10⁻²⁵ кг·м/с',
+ a:'ε = 1,24·10⁻¹⁶ Дж (≈ 777 эВ); m = 1,38·10⁻³³ кг; p = 4,14·10⁻²⁵ кг·м/с'},
+{n:'19.3',t:'ph',q:'Ртутная дуга имеет мощность N = 125 Вт. Какое число фотонов испускается в единицу времени в излучении с длинами волн λ, равными: 612,1; 579,1; 546,1; 404,7; 365,5; 253,7 нм? Интенсивности этих линий составляют соответственно 2; 4; 4; 2,9; 2,5; 4 % интенсивности ртутной дуги. Считать, что 80 % мощности дуги идёт на излучение.',
+ h:'Мощность излучения: 0,8·N = 100 Вт. Мощность линии Pᵢ = kᵢ·100 Вт. Число фотонов в секунду n = Pᵢ/ε = Pᵢλ/(hc).',
+ s:'hc = 1,99·10⁻²⁵ Дж·м<table><tr><th>λ, нм</th><th>k, %</th><th>P, Вт</th><th>n, с⁻¹</th></tr><tr><td>612,1</td><td>2</td><td>2</td><td>6,2·10¹⁸</td></tr><tr><td>579,1</td><td>4</td><td>4</td><td>1,16·10¹⁹</td></tr><tr><td>546,1</td><td>4</td><td>4</td><td>1,10·10¹⁹</td></tr><tr><td>404,7</td><td>2,9</td><td>2,9</td><td>5,9·10¹⁸</td></tr><tr><td>365,5</td><td>2,5</td><td>2,5</td><td>4,6·10¹⁸</td></tr><tr><td>253,7</td><td>4</td><td>4</td><td>5,1·10¹⁸</td></tr></table>Пример: n = 2 · 612,1·10⁻⁹ / 1,99·10⁻²⁵ = 6,2·10¹⁸ с⁻¹',
+ a:'6,2·10¹⁸; 1,16·10¹⁹; 1,1·10¹⁹; 5,9·10¹⁸; 4,6·10¹⁸; 5,1·10¹⁸ фотонов/с'},
+{n:'19.4',t:'ph',q:'С какой скоростью v должен двигаться электрон, чтобы его кинетическая энергия была равна энергии фотона с длиной волны λ = 520 нм?',
+ h:'mv²/2 = hc/λ → v = √(2hc/(mλ)).',
+ s:'ε = hc/λ = 1,99·10⁻²⁵ / 5,2·10⁻⁷ = 3,83·10⁻¹⁹ Дж (2,39 эВ)<br>v = √(2ε/m) = √(2 · 3,83·10⁻¹⁹ / 9,11·10⁻³¹) = 9,2·10⁵ м/с',
+ a:'v ≈ 9,2·10⁵ м/с (≈ 920 км/с)'},
+{n:'19.5',t:'ph',q:'С какой скоростью v должен двигаться электрон, чтобы его импульс был равен импульсу фотона с длиной волны λ = 520 нм?',
+ h:'mv = h/λ → v = h/(mλ).',
+ s:'p = h/λ = 6,63·10⁻³⁴ / 5,2·10⁻⁷ = 1,28·10⁻²⁷ кг·м/с<br>v = p/m = 1,28·10⁻²⁷ / 9,11·10⁻³¹ = 1,4·10³ м/с<br><i>Сравните с задачей 19.4: при равных импульсах электрон движется в сотни раз медленнее.</i>',
+ a:'v ≈ 1,4·10³ м/с (1,4 км/с)'},
+{n:'19.6',t:'ph',q:'Какую энергию ε должен иметь фотон, чтобы его масса была равна массе покоя электрона?',
+ h:'ε = mc², где m = mₑ = 9,11·10⁻³¹ кг.',
+ s:'ε = 9,11·10⁻³¹ · (3·10⁸)² = 8,2·10⁻¹⁴ Дж<br>В электронвольтах: 8,2·10⁻¹⁴ / 1,6·10⁻¹⁹ = 5,1·10⁵ эВ = 0,51 МэВ',
+ a:'ε = 8,2·10⁻¹⁴ Дж ≈ 0,51 МэВ'},
+{n:'19.7',t:'ph',q:'Импульс, переносимый монохроматическим пучком фотонов через площадку S = 2 см² за время t = 0,5 мин, равен p = 3·10⁻⁹ кг·м/с. Найти для этого пучка энергию E, падающую на единицу площади за единицу времени.',
+ h:'Для фотонов p = E/c, значит полная энергия E<sub>полн</sub> = pc. Искомая величина E = E<sub>полн</sub>/(S·t).',
+ s:'E<sub>полн</sub> = 3·10⁻⁹ · 3·10⁸ = 0,9 Дж<br>S = 2·10⁻⁴ м², t = 30 с<br>E = 0,9 / (2·10⁻⁴ · 30) = 150 Дж/(м²·с)',
+ a:'E = 150 Вт/м²'},
+{n:'19.8',t:'ph',q:'При какой температуре T кинетическая энергия молекулы двухатомного газа будет равна энергии фотона с длиной волны λ = 589 нм?',
+ h:'У двухатомной молекулы i = 5 степеней свободы: E = (5/2)kT. Приравнять к hc/λ.',
+ s:'ε = hc/λ = 1,99·10⁻²⁵ / 5,89·10⁻⁷ = 3,38·10⁻¹⁹ Дж<br>(5/2)kT = ε → T = 2ε/(5k) = 2 · 3,38·10⁻¹⁹ / (5 · 1,38·10⁻²³) ≈ 9,8·10³ К',
+ a:'T ≈ 9,8·10³ К'},
+{n:'19.9',t:'ph',q:'При высоких энергиях трудно осуществить условия для измерения экспозиционной дозы рентгеновского и гамма-излучений в рентгенах, поэтому допускается применение рентгена как единицы дозы для излучений с энергией квантов до ε = 3 МэВ. До какой предельной длины волны λ рентгеновского излучения можно употреблять рентген?',
+ h:'λ = hc/ε; 1 МэВ = 1,6·10⁻¹³ Дж.',
+ s:'ε = 3 · 1,6·10⁻¹³ = 4,8·10⁻¹³ Дж<br>λ = 1,99·10⁻²⁵ / 4,8·10⁻¹³ = 4,1·10⁻¹³ м',
+ a:'λ ≈ 4,1·10⁻¹³ м = 0,41 пм (для более коротких волн рентген не применяют)'},
+{n:'19.10',t:'ph',q:'Найти массу m фотона, импульс которого равен импульсу молекулы водорода при температуре t = 20 °C. Скорость молекулы считать равной средней квадратичной скорости.',
+ h:'v<sub>кв</sub> = √(3RT/M); масса молекулы m₀ = M/N<sub>A</sub>; p = m₀v; масса фотона m = p/c.',
+ s:'T = 293 К, M = 2·10⁻³ кг/моль<br>v = √(3 · 8,31 · 293 / 0,002) = 1,91·10³ м/с<br>m₀ = 2·10⁻³ / 6,02·10²³ = 3,32·10⁻²⁷ кг<br>p = 3,32·10⁻²⁷ · 1,91·10³ = 6,35·10⁻²⁴ кг·м/с<br>m = p/c = 6,35·10⁻²⁴ / 3·10⁸ = 2,1·10⁻³² кг',
+ a:'m ≈ 2,1·10⁻³² кг'},
+{n:'19.11',t:'pe',q:'В работе А. Г. Столетова «Актино-электрические исследования» (1888 г.) впервые были установлены основные законы фотоэффекта. Один из результатов его опытов был сформулирован так: «Разряжающим действием обладают лучи самой высокой преломляемости с длиной волны менее 295 нм». Найти работу выхода A электрона из металла, с которым работал А. Г. Столетов.',
+ h:'295 нм — это красная граница λ₀. A = hc/λ₀.',
+ s:'A = 1,99·10⁻²⁵ / 2,95·10⁻⁷ = 6,74·10⁻¹⁹ Дж = 4,2 эВ<br><i>Это близко к работе выхода цинка: Столетов работал с цинковой пластиной.</i>',
+ a:'A ≈ 6,7·10⁻¹⁹ Дж ≈ 4,2 эВ'},
+{n:'19.12',t:'pe',q:'Найти длину волны λ₀ света, соответствующую красной границе фотоэффекта, для лития, натрия, калия и цезия.',
+ h:'λ₀ = hc/A. Работу выхода взять из таблицы задачника. Удобно: λ₀ (нм) ≈ 1240 / A (эВ).',
+ s:'Работа выхода (таблица задачника): Li — 2,4 эВ; Na — 2,3 эВ; K — 2,0 эВ; Cs — 1,9 эВ<table><tr><th>Металл</th><th>A, эВ</th><th>λ₀, нм</th></tr><tr><td>Литий</td><td>2,4</td><td>517</td></tr><tr><td>Натрий</td><td>2,3</td><td>540</td></tr><tr><td>Калий</td><td>2,0</td><td>620</td></tr><tr><td>Цезий</td><td>1,9</td><td>650</td></tr></table><i>В других справочниках работы выхода могут немного отличаться.</i>',
+ a:'Li ≈ 517 нм; Na ≈ 540 нм; K ≈ 620 нм; Cs ≈ 650 нм'},
+{n:'19.13',t:'pe',q:'Длина волны света, соответствующая красной границе фотоэффекта, для некоторого металла λ₀ = 275 нм. Найти минимальную энергию фотона, вызывающего фотоэффект.',
+ h:'Минимальная энергия фотона равна работе выхода: ε<sub>min</sub> = hc/λ₀.',
+ s:'ε<sub>min</sub> = 1,99·10⁻²⁵ / 2,75·10⁻⁷ = 7,2·10⁻¹⁹ Дж = 4,5 эВ',
+ a:'ε<sub>min</sub> ≈ 7,2·10⁻¹⁹ Дж = 4,5 эВ'},
+{n:'19.14',t:'pe',q:'Длина волны света, соответствующая красной границе фотоэффекта, для некоторого металла λ₀ = 275 нм. Найти работу выхода A электрона из металла, максимальную скорость электронов, вырываемых из металла светом с длиной волны λ = 180 нм, и максимальную кинетическую энергию электронов.',
+ h:'A = hc/λ₀; E<sub>к</sub> = hc/λ − A; v = √(2E<sub>к</sub>/m).',
+ s:'A = 1,99·10⁻²⁵ / 2,75·10⁻⁷ = 7,2·10⁻¹⁹ Дж (4,5 эВ)<br>ε = 1,99·10⁻²⁵ / 1,8·10⁻⁷ = 1,1·10⁻¹⁸ Дж (6,9 эВ)<br>E<sub>к</sub> = 1,1·10⁻¹⁸ − 7,2·10⁻¹⁹ = 3,8·10⁻¹⁹ Дж (2,4 эВ)<br>v = √(2 · 3,8·10⁻¹⁹ / 9,11·10⁻³¹) = 9,1·10⁵ м/с',
+ a:'A = 4,5 эВ; v ≈ 9,1·10⁵ м/с; E<sub>к</sub> ≈ 3,8·10⁻¹⁹ Дж'},
+{n:'19.15',t:'pe',q:'Найти частоту ν света, вырывающего из металла электроны, которые полностью задерживаются разностью потенциалов U = 3 В. Фотоэффект прекращается при частоте света ν₀ = 6·10¹⁴ Гц. Найти работу выхода A электрона из металла.',
+ h:'A = hν₀; hν = hν₀ + eU → ν = ν₀ + eU/h.',
+ s:'ν = 6·10¹⁴ + 1,6·10⁻¹⁹ · 3 / 6,63·10⁻³⁴ = 6·10¹⁴ + 7,2·10¹⁴ = 1,32·10¹⁵ Гц<br>A = hν₀ = 6,63·10⁻³⁴ · 6·10¹⁴ = 4·10⁻¹⁹ Дж ≈ 2,5 эВ',
+ a:'ν ≈ 1,3·10¹⁵ Гц; A ≈ 4·10⁻¹⁹ Дж ≈ 2,5 эВ'},
+{n:'19.16',t:'pe',q:'Найти задерживающую разность потенциалов U для электронов, вырываемых при освещении калия светом с длиной волны λ = 330 нм.',
+ h:'eU = hc/λ − A, работа выхода калия A = 2,0 эВ.',
+ s:'ε = 1240 / 330 = 3,76 эВ<br>eU = 3,76 − 2,0 = 1,76 эВ → U = 1,76 В',
+ a:'U ≈ 1,8 В'},
+{n:'19.17',t:'pe',q:'При фотоэффекте с платиновой поверхности электроны полностью задерживаются разностью потенциалов U = 0,8 В. Найти длину волны λ применяемого облучения и предельную длину волны λ₀, при которой ещё возможен фотоэффект.',
+ h:'hc/λ = A + eU; λ₀ = hc/A. Работа выхода платины A = 5,3 эВ.',
+ s:'ε = A + eU = 5,3 + 0,8 = 6,1 эВ → λ = 1240 / 6,1 ≈ 203 нм<br>λ₀ = 1240 / 5,3 ≈ 234 нм',
+ a:'λ ≈ 203 нм; λ₀ ≈ 234 нм'},
+{n:'19.18',t:'pe',q:'Фотоны с энергией ε = 4,9 эВ вырывают электроны из металла с работой выхода A = 4,5 эВ. Найти максимальный импульс p<sub>max</sub>, передаваемый поверхности металла при вылете каждого электрона.',
+ h:'E<sub>к</sub> = ε − A. По закону сохранения импульса поверхность получает импульс отдачи, равный импульсу электрона: p = √(2mE<sub>к</sub>).',
+ s:'E<sub>к</sub> = 4,9 − 4,5 = 0,4 эВ = 6,4·10⁻²⁰ Дж<br>p = √(2 · 9,11·10⁻³¹ · 6,4·10⁻²⁰) = 3,4·10⁻²⁵ кг·м/с',
+ a:'p<sub>max</sub> ≈ 3,4·10⁻²⁵ кг·м/с'},
+{n:'19.19',t:'pe',q:'Найти постоянную Планка h, если известно, что электроны, вырываемые из металла светом с частотой ν₁ = 2,2·10¹⁵ Гц, полностью задерживаются разностью потенциалов U₁ = 6,6 В, а вырываемые светом с частотой ν₂ = 4,6·10¹⁵ Гц — разностью потенциалов U₂ = 16,5 В.',
+ h:'Запишите уравнение Эйнштейна дважды: hν₁ = A + eU₁ и hν₂ = A + eU₂. Вычтите одно из другого — A сократится.',
+ s:'h(ν₂ − ν₁) = e(U₂ − U₁)<br>h = 1,6·10⁻¹⁹ · (16,5 − 6,6) / (4,6·10¹⁵ − 2,2·10¹⁵) = 1,6·10⁻¹⁹ · 9,9 / 2,4·10¹⁵ = 6,6·10⁻³⁴ Дж·с<br><i>Бонус: A = hν₁ − eU₁ ≈ 4·10⁻¹⁹ Дж ≈ 2,5 эВ.</i>',
+ a:'h ≈ 6,6·10⁻³⁴ Дж·с'}];
+let tkFilter='all',tkCur=0;
+function taskHTML(k,id){const t=TASKS[k];return `<div class="task"><div><span class="num">${t.n}</span><span class="muted">${t.t==='ph'?'Фотон':'Фотоэффект'}</span></div>
+  <div class="tq">${t.q}</div><div class="tb"><button class="btn" data-tp="${id}h">💡 Подсказка</button><button class="btn" data-tp="${id}s">📝 Решение</button><button class="btn" data-tp="${id}a">✅ Ответ</button>${id.startsWith('L')?`<button class="btn ghost" data-tbig="${k}">⛶ К доске</button>`:''}</div>
+  <div class="tp hint hidden" id="${id}h">${t.h}</div><div class="tp sol hidden" id="${id}s">${t.s}</div><div class="tp ans hidden" id="${id}a">Ответ: ${t.a}</div></div>`;}
+function tkRender(){$('#tkList').innerHTML=TASKS.map((t,k)=>(tkFilter==='all'||t.t===tkFilter)?`<div class="card">${taskHTML(k,'L'+k)}</div>`:'').join('');}
+function tkOpen(k){tkCur=k;$('#tkBody').innerHTML=taskHTML(k,'M'+k);$('#tkModal').classList.remove('hidden');}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tp]');if(b)$('#'+b.dataset.tp).classList.toggle('hidden');const g=e.target.closest('[data-tbig]');if(g)tkOpen(+g.dataset.tbig);});
+$$('[data-tf]').forEach(b=>b.onclick=()=>{tkFilter=b.dataset.tf;$$('[data-tf]').forEach(x=>x.classList.toggle('on',x===b));tkRender();});
+const tkPool=()=>TASKS.map((t,k)=>k).filter(k=>tkFilter==='all'||TASKS[k].t===tkFilter);
+$('#tkRandom').onclick=()=>{const p=tkPool();tkOpen(p[Math.floor(Math.random()*p.length)]);};
+$('#tkPrev').onclick=()=>{const p=tkPool(),i=p.indexOf(tkCur);tkOpen(p[(i-1+p.length)%p.length]);};
+$('#tkNext').onclick=()=>{const p=tkPool(),i=p.indexOf(tkCur);tkOpen(p[(i+1)%p.length]);};
+$('#tkClose').onclick=()=>$('#tkModal').classList.add('hidden');
+$('#tkModal').onclick=e=>{if(e.target.id==='tkModal')$('#tkModal').classList.add('hidden');};
+tkRender();
 
 show(location.hash.slice(1)||'intro');
 </script>
