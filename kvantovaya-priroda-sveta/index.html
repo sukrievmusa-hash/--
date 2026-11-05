@@ -108,6 +108,17 @@ details li{margin:.35em 0}
 .bucket h3{font-size:1.4em}
 .bucket .placed{display:flex;flex-wrap:wrap;gap:.4em}
 .bucket .placed span{background:rgba(255,255,255,.08);border-radius:12px;padding:.3em .6em;font-weight:700;font-size:.9em}
+.slots,.tiles{display:flex;flex-wrap:wrap;gap:.45em;justify-content:center;margin:.8em 0}
+.slot,.tile{font:inherit;font-weight:900;font-size:1.9em;width:1.7em;height:1.9em;border-radius:14px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;cursor:pointer;user-select:none}
+.slot{background:#0b1130;border:3px dashed var(--line);color:var(--text)}
+.slot.f{border-style:solid;border-color:var(--acc2)}
+.slot.ok{background:rgba(6,214,160,.25);border-color:var(--good)}
+.slot.bad{background:rgba(239,71,111,.25);border-color:var(--bad)}
+.slot.lock{border-color:var(--acc);color:var(--acc)}
+.tile{background:var(--acc);color:#1a1a1a;border:0;box-shadow:0 4px 0 #b8922f;transition:transform .1s}
+.tile:active{transform:translateY(3px);box-shadow:0 1px 0 #b8922f}
+.tile.used{visibility:hidden}
+.slots.shake{animation:shake .4s}
 #confetti{background:transparent!important;border-radius:0;position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;height:100%}
 .legend{display:flex;gap:1em;flex-wrap:wrap;font-size:.85em;color:var(--muted);margin-top:.4em}
 .dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:middle;margin-right:.3em}
@@ -325,6 +336,7 @@ ol.laws li{margin:.45em 0;line-height:1.35}
     <button class="btn on" data-g="g1">⚡ Выбей электрон!</button>
     <button class="btn" data-g="g2">🏆 Битва команд</button>
     <button class="btn" data-g="g3">🌊⚪ Волна или частица?</button>
+    <button class="btn" data-g="g4">🔤 Собери слово</button>
   </div>
 
   <!-- G1 -->
@@ -368,6 +380,25 @@ ol.laws li{margin:.45em 0;line-height:1.35}
       <div class="row" style="justify-content:flex-end;margin-top:.8em"><button class="btn primary hidden" id="g2next">Следующий вопрос ➜</button></div>
     </div>
     <div id="g2end" class="big-center hidden"></div>
+  </div>
+
+  <!-- G4 -->
+  <div class="card game hidden" id="g4">
+    <div id="g4play">
+      <div class="topbar"><span class="pill" id="g4round">Слово 1/10</span><span class="pill" id="g4score">Очки: 0</span></div>
+      <div class="q" id="g4def"></div>
+      <div class="slots" id="g4slots"></div>
+      <div class="tiles" id="g4tiles"></div>
+      <div class="row" style="justify-content:center;margin-top:1em">
+        <button class="btn" id="g4hint">💡 Подсказать букву</button>
+        <button class="btn" id="g4mix">🔀 Перемешать</button>
+        <button class="btn" id="g4clear">⟲ Очистить</button>
+        <button class="btn ghost" id="g4skip">Пропустить ➜</button>
+      </div>
+      <div id="g4fb"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:.8em"><button class="btn primary hidden" id="g4next">Следующее слово ➜</button></div>
+    </div>
+    <div id="g4end" class="big-center hidden"></div>
   </div>
 
   <!-- G3 -->
@@ -886,6 +917,65 @@ $('#tkNext').onclick=()=>{const p=tkPool(),i=p.indexOf(tkCur);tkOpen(p[(i+1)%p.l
 $('#tkClose').onclick=()=>$('#tkModal').classList.add('hidden');
 $('#tkModal').onclick=e=>{if(e.target.id==='tkModal')$('#tkModal').classList.add('hidden');};
 tkRender();
+
+/* ---------- G4: build the word ---------- */
+const WORDS=[
+['ФОТОН','Квант света — частица с нулевой массой покоя, всегда летит со скоростью c.'],
+['КВАНТ','Наименьшая неделимая порция энергии излучения.'],
+['ЭЛЕКТРОН','Частица, которую свет выбивает из металла при фотоэффекте.'],
+['ФОТОЭФФЕКТ','Вырывание электронов из вещества под действием света.'],
+['ДИФРАКЦИЯ','Огибание волнами препятствий — признак волновой природы света.'],
+['ИНТЕРФЕРЕНЦИЯ','Сложение волн, при котором получаются светлые и тёмные полосы.'],
+['ДУАЛИЗМ','Корпускулярно-волновой … : свет — и волна, и поток частиц.'],
+['ИМПУЛЬС','У фотона он равен h/λ.'],
+['ЧАСТОТА','От этой величины зависит энергия фотона: E = hν.'],
+['ПЛАНК','Учёный, в 1900 году предложивший гипотезу квантов.'],
+['ЭЙНШТЕЙН','Объяснил фотоэффект и получил за это Нобелевскую премию.'],
+['СТОЛЕТОВ','Русский физик, установивший законы фотоэффекта (1888).'],
+['ЛЕБЕДЕВ','Русский физик, впервые измеривший давление света.'],
+['КАТОД','Электрод фотоэлемента, из которого свет выбивает электроны.'],
+['КОМПТОН','Открыл увеличение длины волны рентгеновских лучей при рассеянии на электронах.'],
+['ДАВЛЕНИЕ','Свет оказывает его на поверхность: P = E(1+ρ)/c.'],
+['СПЕКТР','Разложение света по длинам волн, например радуга.'],
+['ВОЛНА','Свет как электромагнитная …'],
+['РАБОТА','… выхода — энергия, нужная, чтобы вырвать электрон из металла.'],
+['ПОЛЯРИЗАЦИЯ','Явление, доказывающее, что свет — поперечная волна.']];
+const G4={list:[],i:0,score:0,word:'',tiles:[],slots:[],lock:0,hints:0,done:false};
+function g4start(){G4.list=shuffle(WORDS.slice()).slice(0,10);G4.i=0;G4.score=0;$('#g4end').classList.add('hidden');$('#g4play').classList.remove('hidden');g4load();}
+function g4load(){const [w,d]=G4.list[G4.i];G4.word=w;G4.hints=0;G4.lock=0;G4.done=false;
+  let letters=w.split('');do{shuffle(letters);}while(letters.join('')===w&&w.length>1);
+  G4.tiles=letters.map(ch=>({ch,used:false}));G4.slots=new Array(w.length).fill(null);
+  $('#g4round').textContent=`Слово ${G4.i+1}/${G4.list.length}`;$('#g4score').textContent='Очки: '+G4.score;
+  $('#g4def').innerHTML=`${d} <span class="muted" style="font-size:.7em">(${w.length} букв)</span>`;
+  $('#g4fb').innerHTML='';$('#g4next').classList.add('hidden');$$('#g4hint,#g4mix,#g4clear,#g4skip').forEach(b=>b.disabled=false);g4draw();}
+function g4draw(st){
+  $('#g4slots').innerHTML=G4.slots.map((t,k)=>`<div class="slot${t!==null?' f':''}${k<G4.lock?' lock':''}${st?' '+st:''}" data-sl="${k}">${t!==null?G4.tiles[t].ch:''}</div>`).join('');
+  $('#g4tiles').innerHTML=G4.tiles.map((t,k)=>`<button class="tile${t.used?' used':''}" data-tl="${k}">${t.ch}</button>`).join('');}
+function g4check(){if(G4.slots.some(x=>x===null))return;
+  const got=G4.slots.map(t=>G4.tiles[t].ch).join('');
+  if(got===G4.word){G4.done=true;const pts=Math.max(2,10-G4.hints*3);G4.score+=pts;beep(true);g4draw('ok');
+    $('#g4score').textContent='Очки: '+G4.score;$('#g4fb').innerHTML=`<div class="fb ok"><b>✅ Верно: ${G4.word}! +${pts}</b></div>`;
+    $$('#g4hint,#g4mix,#g4clear,#g4skip').forEach(b=>b.disabled=true);
+    $('#g4next').textContent=G4.i>=G4.list.length-1?'Итоги 🏁':'Следующее слово ➜';$('#g4next').classList.remove('hidden');}
+  else{beep(false);g4draw('bad');const el=$('#g4slots');el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');
+    $('#g4fb').innerHTML='<div class="fb no"><b>❌ Пока не то.</b> Нажмите на букву в слове, чтобы вернуть её, или возьмите подсказку.</div>';}}
+document.addEventListener('click',e=>{if(G4.done)return;
+  const t=e.target.closest('[data-tl]');if(t){const k=+t.dataset.tl;if(G4.tiles[k].used)return;const s=G4.slots.indexOf(null);if(s<0)return;G4.slots[s]=k;G4.tiles[k].used=true;g4draw();g4check();return;}
+  const sl=e.target.closest('[data-sl]');if(sl){const s=+sl.dataset.sl;if(s<G4.lock||G4.slots[s]===null)return;G4.tiles[G4.slots[s]].used=false;G4.slots[s]=null;$('#g4fb').innerHTML='';g4draw();}});
+function g4clearFrom(n){for(let s=n;s<G4.slots.length;s++){if(G4.slots[s]!==null){G4.tiles[G4.slots[s]].used=false;G4.slots[s]=null;}}}
+$('#g4clear').onclick=()=>{g4clearFrom(G4.lock);$('#g4fb').innerHTML='';g4draw();};
+$('#g4mix').onclick=()=>{g4clearFrom(G4.lock);const keep=G4.tiles.map((t,k)=>k).filter(k=>G4.tiles[k].used);const free=shuffle(G4.tiles.filter(t=>!t.used));
+  // rebuild tiles keeping locked ones
+  const locked=G4.slots.slice(0,G4.lock).map(k=>G4.tiles[k]);G4.tiles=[...locked,...free];G4.slots=G4.slots.map((x,i)=>i<G4.lock?i:null);g4draw();};
+$('#g4hint').onclick=()=>{if(G4.lock>=G4.word.length)return;g4clearFrom(G4.lock);const need=G4.word[G4.lock];const k=G4.tiles.findIndex(t=>!t.used&&t.ch===need);
+  G4.slots[G4.lock]=k;G4.tiles[k].used=true;G4.lock++;G4.hints++;$('#g4fb').innerHTML=`<div class="fb ok">💡 Подсказка: буква «${need}» на месте ${G4.lock}.</div>`;g4draw();g4check();};
+$('#g4skip').onclick=()=>{G4.done=true;G4.slots=G4.word.split('').map((ch,i)=>i);G4.tiles=G4.word.split('').map(ch=>({ch,used:true}));g4draw('bad');
+  $('#g4fb').innerHTML=`<div class="fb no"><b>Ответ: ${G4.word}</b></div>`;$$('#g4hint,#g4mix,#g4clear,#g4skip').forEach(b=>b.disabled=true);
+  $('#g4next').textContent=G4.i>=G4.list.length-1?'Итоги 🏁':'Следующее слово ➜';$('#g4next').classList.remove('hidden');};
+$('#g4next').onclick=()=>{if(G4.i>=G4.list.length-1){$('#g4play').classList.add('hidden');const e=$('#g4end');e.classList.remove('hidden');
+  e.innerHTML=`<div class="huge">🔤 ${G4.score} из ${G4.list.length*10}</div><p class="lead">${G4.score>=80?'Словарь физика — на отлично!':G4.score>=50?'Хороший результат!':'Повторим термины ещё раз?'}</p><button class="btn primary" id="g4again" style="font-size:1.3em">Играть ещё</button>`;
+  $('#g4again').onclick=g4start;confetti();beep(true);}else{G4.i++;g4load();}};
+g4start();
 
 show(location.hash.slice(1)||'intro');
 </script>
