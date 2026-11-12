@@ -170,6 +170,7 @@ ol.laws li{margin:.45em 0;line-height:1.35}
   <button class="btn" data-go="duality">4. Дуализм</button>
   <button class="btn" data-go="tasks">📚 5. Задачи</button>
   <button class="btn" data-go="games">🎮 6. Игры</button>
+  <button class="btn" data-go="jeopardy">🟦 7. Своя игра</button>
   <span class="sp"></span>
   <button class="btn ghost" id="snd" title="Звук">🔊</button>
   <button class="btn ghost" id="fs" title="Весь экран">⛶</button>
@@ -199,7 +200,7 @@ ol.laws li{margin:.45em 0;line-height:1.35}
       <li><b>20–30 мин.</b> «Фотоэффект»: виртуальная лаборатория, законы Столетова, уравнение Эйнштейна. Решаем загадку из начала урока.</li>
       <li><b>30–35 мин.</b> «Дуализм»: опыт с двумя щелями, фотоны по одному.</li>
       <li><b>По желанию / домашнее задание.</b> «Задачи»: задачи 19.1–19.41 из задачника с подсказками и решениями.</li>
-      <li><b>35–43 мин.</b> Игры: «Выбей электрон!», «Битва команд», «Волна или частица?».</li>
+      <li><b>35–43 мин.</b> Игры: «Выбей электрон!», «Битва команд», «Волна или частица?», «Собери слово» или «Своя игра» (вкладка 7).</li>
       <li><b>43–45 мин.</b> Итог: «Свет — это поток фотонов, которые ведут себя как волны».</li>
     </ol>
   </details>
@@ -357,7 +358,6 @@ ol.laws li{margin:.45em 0;line-height:1.35}
     <button class="btn" data-g="g2">🏆 Битва команд</button>
     <button class="btn" data-g="g3">🌊⚪ Волна или частица?</button>
     <button class="btn" data-g="g4">🔤 Собери слово</button>
-    <button class="btn" data-g="g5">🟦 Своя игра</button>
   </div>
 
   <!-- G1 -->
@@ -403,35 +403,6 @@ ol.laws li{margin:.45em 0;line-height:1.35}
     <div id="g2end" class="big-center hidden"></div>
   </div>
 
-  <!-- G5 -->
-  <div class="card game hidden" id="g5">
-    <div id="jpSetup" class="big-center">
-      <div class="huge">🟦 Своя игра</div>
-      <p class="lead">5 тем × 5 вопросов. Команда выбирает тему и стоимость, отвечает вслух,<br>учитель открывает ответ и начисляет очки (+) или снимает (−).</p>
-      <div class="row" style="justify-content:center;margin:.6em 0"><span style="font-weight:800">Команд:</span>
-        <button class="btn" data-jn="2">2</button><button class="btn on" data-jn="3">3</button><button class="btn" data-jn="4">4</button></div>
-      <div class="teams" id="jpNames" style="max-width:1000px;margin:1em auto"></div>
-      <button class="btn primary" id="jpGo" style="font-size:1.4em">Начать игру</button>
-    </div>
-    <div id="jpPlay" class="hidden">
-      <div class="jgrid" id="jpBoard"></div>
-      <div class="jteams" id="jpScores"></div>
-      <div class="row" style="justify-content:flex-end;margin-top:.8em"><button class="btn ghost" id="jpReset">⟲ Новая игра</button></div>
-    </div>
-    <div id="jpEnd" class="big-center hidden"></div>
-  </div>
-  <div id="jpModal" class="hidden"><div class="jbox">
-    <div class="jhead"><span id="jpCat"></span><span id="jpVal"></span></div>
-    <div class="jq" id="jpQ"></div>
-    <div class="timer" style="max-width:600px;margin:1em auto"><div id="jpTimer"></div></div>
-    <div class="ja hidden" id="jpA"></div>
-    <div class="row" style="justify-content:center;margin-top:1em">
-      <button class="btn primary" id="jpShow" style="font-size:1.2em">👁 Показать ответ</button>
-    </div>
-    <div class="jaward hidden" id="jpAward"></div>
-    <div class="row" style="justify-content:center;margin-top:1em"><button class="btn ghost" id="jpClose">Закрыть вопрос ✕</button></div>
-  </div></div>
-
   <!-- G4 -->
   <div class="card game hidden" id="g4">
     <div id="g4play">
@@ -463,6 +434,38 @@ ol.laws li{margin:.45em 0;line-height:1.35}
     <div class="row" style="justify-content:flex-end;margin-top:.8em"><button class="btn ghost" id="g3reset">⟲ Начать заново</button></div>
   </div>
 </section>
+<!-- ============ 7. JEOPARDY ============ -->
+<section id="jeopardy">
+  <h2>🟦 Своя игра</h2>
+  <div class="card" id="g5">
+    <div id="jpSetup" class="big-center">
+      <div class="huge">🟦 Своя игра</div>
+      <p class="lead">5 тем × 5 вопросов. Команда выбирает тему и стоимость, отвечает вслух,<br>учитель открывает ответ и начисляет очки (+) или снимает (−).</p>
+      <div class="row" style="justify-content:center;margin:.6em 0"><span style="font-weight:800">Команд:</span>
+        <button class="btn" data-jn="2">2</button><button class="btn on" data-jn="3">3</button><button class="btn" data-jn="4">4</button></div>
+      <div class="teams" id="jpNames" style="max-width:1000px;margin:1em auto"></div>
+      <button class="btn primary" id="jpGo" style="font-size:1.4em">Начать игру</button>
+    </div>
+    <div id="jpPlay" class="hidden">
+      <div class="jgrid" id="jpBoard"></div>
+      <div class="jteams" id="jpScores"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:.8em"><button class="btn ghost" id="jpReset">⟲ Новая игра</button></div>
+    </div>
+    <div id="jpEnd" class="big-center hidden"></div>
+  </div>
+</section>
+<div id="jpModal" class="hidden"><div class="jbox">
+    <div class="jhead"><span id="jpCat"></span><span id="jpVal"></span></div>
+    <div class="jq" id="jpQ"></div>
+    <div class="timer" style="max-width:600px;margin:1em auto"><div id="jpTimer"></div></div>
+    <div class="ja hidden" id="jpA"></div>
+    <div class="row" style="justify-content:center;margin-top:1em">
+      <button class="btn primary" id="jpShow" style="font-size:1.2em">👁 Показать ответ</button>
+    </div>
+    <div class="jaward hidden" id="jpAward"></div>
+    <div class="row" style="justify-content:center;margin-top:1em"><button class="btn ghost" id="jpClose">Закрыть вопрос ✕</button></div>
+  </div></div>
+
 
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -496,7 +499,7 @@ function confetti(){const cv=$('#confetti'),d=devicePixelRatio||1,W=innerWidth,H
   (function st(){ctx.clearRect(0,0,W,Hh);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.12;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-6,-3,12,7);ctx.restore();});if(++f<260)requestAnimationFrame(st);else ctx.clearRect(0,0,W,Hh);})();}
 
 /* ---------- navigation ---------- */
-const SECTIONS=['intro','photon','photoeffect','duality','tasks','games'];
+const SECTIONS=['intro','photon','photoeffect','duality','tasks','games','jeopardy'];
 let active='intro';
 function show(id){if(!SECTIONS.includes(id))id='intro';active=id;
   $$('section').forEach(s=>s.classList.toggle('active',s.id===id));
