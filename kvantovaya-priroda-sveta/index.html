@@ -119,6 +119,26 @@ details li{margin:.35em 0}
 .tile:active{transform:translateY(3px);box-shadow:0 1px 0 #b8922f}
 .tile.used{visibility:hidden}
 .slots.shake{animation:shake .4s}
+.jgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5em}
+.jcat{background:#1a2f8a;border-radius:14px;padding:.5em;min-height:3.4em;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:1.05em;text-transform:uppercase;line-height:1.15}
+.jcell{font:inherit;font-size:1.9em;font-weight:900;color:var(--acc);background:linear-gradient(180deg,#2340b8,#16288a);border:0;border-radius:14px;min-height:1.75em;cursor:pointer;text-shadow:0 3px 0 #0008;touch-action:manipulation;transition:transform .1s}
+.jcell:active{transform:scale(.95)}
+.jcell.used{background:#11163a;color:transparent;text-shadow:none;cursor:default}
+.jteams{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7em;margin-top:1em}
+.jteam{background:var(--panel2);border-radius:18px;padding:.5em .8em;text-align:center}
+.jteam .nm{font-weight:900}.jteam .sc{font-size:2.3em;font-weight:900}
+.jteam .row{justify-content:center}.jteam .btn{min-height:40px;padding:.3em .7em}
+#jpModal{position:fixed;inset:0;z-index:45;background:rgba(5,8,30,.94);display:flex;align-items:center;justify-content:center;padding:2vh 2vw;overflow:auto}
+#jpModal.hidden{display:none!important}
+.jbox{background:linear-gradient(180deg,#2340b8,#121f70);border:3px solid var(--acc);border-radius:26px;padding:1.2em 2em;width:min(1400px,96vw);text-align:center}
+.jhead{display:flex;justify-content:space-between;font-weight:900;font-size:1.3em;color:var(--acc);text-transform:uppercase}
+.jq{font-size:2.3em;font-weight:900;line-height:1.25;margin:.8em 0 .3em}
+.ja{font-size:1.9em;font-weight:900;color:#7cffb2;background:rgba(0,0,0,.3);border-radius:18px;padding:.4em .8em;margin-top:.6em}
+.jaward{display:flex;flex-wrap:wrap;gap:.6em;justify-content:center;margin-top:1em}
+.jaward .tm{background:rgba(0,0,0,.3);border-radius:16px;padding:.4em .7em;display:flex;align-items:center;gap:.5em;font-weight:900}
+.jaward .btn{min-height:46px}
+.btn.plus{background:var(--good);color:#06281f}.btn.minus{background:var(--bad);color:#fff}
+@media(max-width:700px){.jcat{font-size:.7em}.jcell{font-size:1.4em}.jq{font-size:1.5em}}
 #confetti{background:transparent!important;border-radius:0;position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;height:100%}
 .legend{display:flex;gap:1em;flex-wrap:wrap;font-size:.85em;color:var(--muted);margin-top:.4em}
 .dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:middle;margin-right:.3em}
@@ -337,6 +357,7 @@ ol.laws li{margin:.45em 0;line-height:1.35}
     <button class="btn" data-g="g2">🏆 Битва команд</button>
     <button class="btn" data-g="g3">🌊⚪ Волна или частица?</button>
     <button class="btn" data-g="g4">🔤 Собери слово</button>
+    <button class="btn" data-g="g5">🟦 Своя игра</button>
   </div>
 
   <!-- G1 -->
@@ -381,6 +402,35 @@ ol.laws li{margin:.45em 0;line-height:1.35}
     </div>
     <div id="g2end" class="big-center hidden"></div>
   </div>
+
+  <!-- G5 -->
+  <div class="card game hidden" id="g5">
+    <div id="jpSetup" class="big-center">
+      <div class="huge">🟦 Своя игра</div>
+      <p class="lead">5 тем × 5 вопросов. Команда выбирает тему и стоимость, отвечает вслух,<br>учитель открывает ответ и начисляет очки (+) или снимает (−).</p>
+      <div class="row" style="justify-content:center;margin:.6em 0"><span style="font-weight:800">Команд:</span>
+        <button class="btn" data-jn="2">2</button><button class="btn on" data-jn="3">3</button><button class="btn" data-jn="4">4</button></div>
+      <div class="teams" id="jpNames" style="max-width:1000px;margin:1em auto"></div>
+      <button class="btn primary" id="jpGo" style="font-size:1.4em">Начать игру</button>
+    </div>
+    <div id="jpPlay" class="hidden">
+      <div class="jgrid" id="jpBoard"></div>
+      <div class="jteams" id="jpScores"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:.8em"><button class="btn ghost" id="jpReset">⟲ Новая игра</button></div>
+    </div>
+    <div id="jpEnd" class="big-center hidden"></div>
+  </div>
+  <div id="jpModal" class="hidden"><div class="jbox">
+    <div class="jhead"><span id="jpCat"></span><span id="jpVal"></span></div>
+    <div class="jq" id="jpQ"></div>
+    <div class="timer" style="max-width:600px;margin:1em auto"><div id="jpTimer"></div></div>
+    <div class="ja hidden" id="jpA"></div>
+    <div class="row" style="justify-content:center;margin-top:1em">
+      <button class="btn primary" id="jpShow" style="font-size:1.2em">👁 Показать ответ</button>
+    </div>
+    <div class="jaward hidden" id="jpAward"></div>
+    <div class="row" style="justify-content:center;margin-top:1em"><button class="btn ghost" id="jpClose">Закрыть вопрос ✕</button></div>
+  </div></div>
 
   <!-- G4 -->
   <div class="card game hidden" id="g4">
@@ -976,6 +1026,68 @@ $('#g4next').onclick=()=>{if(G4.i>=G4.list.length-1){$('#g4play').classList.add(
   e.innerHTML=`<div class="huge">🔤 ${G4.score} из ${G4.list.length*10}</div><p class="lead">${G4.score>=80?'Словарь физика — на отлично!':G4.score>=50?'Хороший результат!':'Повторим термины ещё раз?'}</p><button class="btn primary" id="g4again" style="font-size:1.3em">Играть ещё</button>`;
   $('#g4again').onclick=g4start;confetti();beep(true);}else{G4.i++;g4load();}};
 g4start();
+
+/* ---------- G5: jeopardy ---------- */
+const JP=[
+['Фотон',[
+ ['Как называется квант (порция) света?','Фотон'],
+ ['Чему равна масса покоя фотона?','Нулю'],
+ ['По какой формуле находят энергию фотона через длину волны?','E = hc/λ'],
+ ['Энергия фотона 2 эВ. Сколько это в джоулях?','3,2·10⁻¹⁹ Дж'],
+ ['Во сколько раз энергия фотона с λ = 400 нм больше, чем с λ = 800 нм?','В 2 раза (E ~ 1/λ)']]],
+['Фотоэффект',[
+ ['Какие частицы вылетают из металла при фотоэффекте?','Электроны'],
+ ['Как называется минимальная энергия, нужная, чтобы вырвать электрон из металла?','Работа выхода'],
+ ['Запишите уравнение Эйнштейна для фотоэффекта.','hν = A + mv²/2'],
+ ['Работа выхода 2 эВ, энергия фотона 5 эВ. Найдите максимальную кинетическую энергию электрона.','3 эВ'],
+ ['Работа выхода цинка 4,2 эВ. Найдите красную границу фотоэффекта (подсказка: λ ≈ 1240/A нм).','≈ 295 нм']]],
+['Учёные',[
+ ['Кто в 1900 году предложил гипотезу квантов?','Макс Планк'],
+ ['Кто объяснил фотоэффект и получил за это Нобелевскую премию?','Альберт Эйнштейн'],
+ ['Русский физик, установивший законы фотоэффекта.','Александр Столетов'],
+ ['Кто впервые измерил давление света?','Пётр Лебедев'],
+ ['Кто предположил, что электроны тоже обладают волновыми свойствами?','Луи де Бройль']]],
+['Дуализм',[
+ ['Назовите явление, доказывающее волновые свойства света.','Интерференция (или дифракция, поляризация)'],
+ ['Как называется свойство света быть и волной, и частицей?','Корпускулярно-волновой дуализм'],
+ ['Запишите формулу длины волны де Бройля.','λ = h/p = h/(mv)'],
+ ['Что случится с полосами в опыте с двумя щелями, если узнать, через какую щель пролетел фотон?','Интерференционные полосы исчезнут'],
+ ['Почему мы не замечаем волновых свойств футбольного мяча?','Из-за большой массы его длина волны де Бройля ничтожно мала (~10⁻³⁴ м)']]],
+['Давление и Комптон',[
+ ['На какую поверхность свет давит сильнее: чёрную или зеркальную?','На зеркальную (в 2 раза сильнее)'],
+ ['Запишите формулу давления света с коэффициентом отражения ρ.','P = E(1 + ρ)/c'],
+ ['Какое астрономическое явление Бредихин объяснил давлением света?','Форму хвостов комет'],
+ ['Как меняется длина волны рентгеновских лучей при эффекте Комптона?','Увеличивается'],
+ ['На сколько увеличится длина волны при комптоновском рассеянии под углом 90°?','На 2,43 пм (комптоновская длина волны h/mₑc)']]]];
+const JG={n:3,names:['Фотоны','Электроны','Кванты','Волны'],sc:[],used:new Set(),cur:null,timer:null};
+function jpNames(){$('#jpNames').style.gridTemplateColumns=`repeat(${JG.n},1fr)`;$('#jpNames').innerHTML=[...Array(JG.n)].map((_,i)=>`<div class="team"><div class="nm">Команда ${i+1}</div><input data-jnm="${i}" value="${JG.names[i]}"></div>`).join('');}
+$$('[data-jn]').forEach(b=>b.onclick=()=>{JG.n=+b.dataset.jn;$$('[data-jn]').forEach(x=>x.classList.toggle('on',x===b));jpNames();});
+jpNames();
+function jpStart(){$$('[data-jnm]').forEach(i=>JG.names[+i.dataset.jnm]=i.value||('Команда '+(+i.dataset.jnm+1)));
+  JG.sc=new Array(JG.n).fill(0);JG.used=new Set();$('#jpSetup').classList.add('hidden');$('#jpEnd').classList.add('hidden');$('#jpPlay').classList.remove('hidden');jpBoard();jpScores();}
+function jpBoard(){let h=JP.map(c=>`<div class="jcat">${c[0]}</div>`).join('');
+  for(let r=0;r<5;r++)for(let c=0;c<5;c++){const id=c+'-'+r;h+=`<button class="jcell${JG.used.has(id)?' used':''}" data-jc="${id}">${(r+1)*100}</button>`;}
+  $('#jpBoard').innerHTML=h;$$('#jpBoard .jcell').forEach(b=>b.onclick=()=>{if(!JG.used.has(b.dataset.jc))jpOpen(b.dataset.jc);});}
+function jpScores(){$('#jpScores').innerHTML=JG.sc.map((v,i)=>`<div class="jteam"><div class="nm">${JG.names[i]}</div><div class="sc">${v}</div><div class="row"><button class="btn minus" data-jadj="${i}:-100">−100</button><button class="btn plus" data-jadj="${i}:100">+100</button></div></div>`).join('');}
+function jpOpen(id){const [c,r]=id.split('-').map(Number);const val=(r+1)*100;JG.cur={id,val,awarded:false};
+  $('#jpCat').textContent=JP[c][0];$('#jpVal').textContent=val;$('#jpQ').textContent=JP[c][1][r][0];$('#jpA').textContent=JP[c][1][r][1];
+  $('#jpA').classList.add('hidden');$('#jpShow').classList.remove('hidden');
+  $('#jpAward').innerHTML=JG.sc.map((_,i)=>`<div class="tm">${JG.names[i]} <button class="btn plus" data-jaw="${i}:1">+${val}</button><button class="btn minus" data-jaw="${i}:-1">−${val}</button></div>`).join('');
+  $('#jpAward').classList.remove('hidden');$('#jpModal').classList.remove('hidden');
+  let left=30;clearInterval(JG.timer);$('#jpTimer').style.width='100%';
+  JG.timer=setInterval(()=>{left-=.1;$('#jpTimer').style.width=Math.max(0,left/30*100)+'%';if(left<=0){clearInterval(JG.timer);beep(false);}},100);}
+function jpClose(){clearInterval(JG.timer);if(JG.cur){JG.used.add(JG.cur.id);JG.cur=null;}$('#jpModal').classList.add('hidden');jpBoard();jpScores();
+  if(JG.used.size>=25){$('#jpPlay').classList.add('hidden');const e=$('#jpEnd');e.classList.remove('hidden');const mx=Math.max(...JG.sc);const win=JG.names.filter((_,i)=>JG.sc[i]===mx);
+    e.innerHTML=`<div class="huge">🏆 ${win.length>1?'Ничья: '+win.join(', '):'Победа: «'+win[0]+'»'}</div><p class="lead">${JG.sc.map((v,i)=>`${JG.names[i]}: <b>${v}</b>`).join(' &nbsp;·&nbsp; ')}</p><button class="btn primary" id="jpAgain" style="font-size:1.3em">Новая игра</button>`;
+    $('#jpAgain').onclick=()=>{$('#jpEnd').classList.add('hidden');$('#jpSetup').classList.remove('hidden');};confetti();beep(true);}}
+$('#jpShow').onclick=()=>{$('#jpA').classList.remove('hidden');$('#jpShow').classList.add('hidden');clearInterval(JG.timer);};
+$('#jpClose').onclick=jpClose;
+document.addEventListener('click',e=>{const a=e.target.closest('[data-jaw]');if(a&&JG.cur){const [i,sg]=a.dataset.jaw.split(':').map(Number);JG.sc[i]+=sg*JG.cur.val;beep(sg>0);
+    a.parentElement.querySelectorAll('.btn').forEach(b=>b.disabled=true);$('#jpA').classList.remove('hidden');$('#jpShow').classList.add('hidden');clearInterval(JG.timer);jpScores();
+    if(sg>0)setTimeout(jpClose,900);}
+  const d=e.target.closest('[data-jadj]');if(d){const [i,v]=d.dataset.jadj.split(':').map(Number);JG.sc[i]+=v;jpScores();}});
+$('#jpGo').onclick=jpStart;
+$('#jpReset').onclick=()=>{$('#jpPlay').classList.add('hidden');$('#jpSetup').classList.remove('hidden');};
 
 show(location.hash.slice(1)||'intro');
 </script>
