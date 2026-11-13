@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Квантовая природа света — открытый урок физики</title>
+<style>
+:root{
+  --bg:#0b1330; --bg2:#101a42; --panel:#16214f; --panel2:#1d2a63; --line:#2c3c82;
+  --txt:#eef2ff; --mut:#9fb0ee; --yel:#ffd24a; --cy:#4fd1ff; --vio:#a78bfa; --grn:#4ade80; --red:#ff6b6b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+#deck{position:fixed;inset:0 0 68px 0;background:radial-gradient(1200px 700px at 80% -10%,#1b2a6b 0%,var(--bg) 60%)}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;gap:1.2vh;padding:2.2vh 3vw 1.5vh;overflow:auto;font-size:clamp(16px,1.75vw,34px);line-height:1.35}
+.slide.active{display:flex;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(34px,5.4vw,100px);margin:0;line-height:1.05}
+h2{font-size:clamp(24px,3vw,58px);margin:0;color:var(--yel)}
+h3{margin:0 0 .3em;font-size:1.1em;color:var(--cy)}
+p{margin:.3em 0}
+.mut{color:var(--mut)}
+.row{display:flex;gap:2vw;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:1.2vh;flex:1;min-width:0}
+.grow{flex:1}
+.card-p{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:1.4vh 1.4vw}
+.big{font-size:1.25em}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;font-size:clamp(30px,4.4vw,84px);text-align:center;
+  background:var(--panel);border:2px solid var(--yel);border-radius:20px;padding:1.2vh 1vw;color:#fff}
+.formula small{font-size:.5em;font-style:normal;color:var(--mut);display:block;margin-top:.3em}
+.hl1{color:var(--yel)}.hl2{color:var(--cy)}.hl3{color:var(--grn)}.hl4{color:var(--vio)}.hl5{color:var(--red)}
+.btn{background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:.55em 1em;min-height:52px;font-weight:600}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--yel);color:#1a1a1a;border-color:var(--yel)}
+.btn.on{outline:3px solid var(--yel)}
+.step{opacity:0;transform:translateY(10px);pointer-events:none;transition:.4s}
+.step.shown{opacity:1;transform:none;pointer-events:auto}
+.tag{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:.1em .7em;font-size:.8em;color:var(--mut)}
+ul.clean{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1vh}
+ul.clean li{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:.7vh 1vw}
+.num{display:inline-flex;width:1.7em;height:1.7em;border-radius:50%;background:var(--yel);color:#111;font-weight:800;align-items:center;justify-content:center;margin-right:.6em}
+canvas{display:block;max-width:100%}
+/* title */
+#s-title{justify-content:center;align-items:center;text-align:center;gap:3vh}
+#s-title .sub{font-size:1.5em;color:var(--mut)}
+#s-title .eq{font-family:"Cambria Math",serif;font-style:italic;font-size:2.4em;color:var(--yel)}
+.wave{position:absolute;left:0;right:0;bottom:0;height:22vh;opacity:.5;pointer-events:none}
+/* lab */
+.sl{display:flex;align-items:center;gap:1vw}
+.sl label{min-width:9.5em;font-weight:600}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:14px;border-radius:9px;background:var(--line);outline:none;touch-action:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:42px;height:42px;border-radius:50%;background:var(--yel);border:4px solid #fff}
+input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;background:var(--yel);border:4px solid #fff}
+.chips{display:flex;flex-wrap:wrap;gap:.6vw}
+.chips .btn{padding:.35em .8em;min-height:46px}
+.read{display:grid;grid-template-columns:1fr auto;gap:.2em 1em;font-size:.95em}
+.read b{text-align:right;font-variant-numeric:tabular-nums}
+.status{font-weight:800;font-size:1.15em;text-align:center;border-radius:12px;padding:.4em}
+.status.yes{background:rgba(74,222,128,.18);color:var(--grn);border:2px solid var(--grn)}
+.status.no{background:rgba(255,107,107,.18);color:var(--red);border:2px solid var(--red)}
+/* reveal cards */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:1.2vw}
+.pair .step{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:1vh 1vw}
+.tile{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:1.5vh 1vw;text-align:center;cursor:pointer;transition:.2s}
+.tile .ic{font-size:2.4em}
+.tile .more{display:none;font-size:.82em;color:var(--mut);margin-top:.4em}
+.tile.open{background:var(--panel2);border-color:var(--yel)}
+.tile.open .more{display:block}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2vw}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2vw}
+table{border-collapse:collapse;width:100%}
+td,th{border:2px solid var(--line);padding:.35em .6em;text-align:center}
+th{background:var(--panel2);color:var(--yel)}
+/* games */
+.gh{display:flex;align-items:center;justify-content:space-between;gap:2vw;flex-wrap:wrap}
+.scoreboard{display:flex;gap:.8vw;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:.5em;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:.2em .6em;cursor:pointer}
+.chip.on{border-color:var(--yel);background:#2a2f6a;box-shadow:0 0 0 3px rgba(255,210,74,.25)}
+.chip .pts{font-size:1.4em;font-weight:800;color:var(--yel);min-width:1.2em;text-align:center}
+.chip button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-size:1.1em;font-weight:700}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:1.2vw}
+.ans .btn{font-size:1.05em;text-align:left;min-height:84px}
+.ans .btn.ok{background:rgba(74,222,128,.25);border-color:var(--grn)}
+.ans .btn.bad{background:rgba(255,107,107,.25);border-color:var(--red)}
+.qtext{font-size:1.35em;font-weight:700;min-height:2.6em}
+.bar{height:16px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--grn);transition:width .1s linear}
+.pool{display:flex;flex-wrap:wrap;gap:1vw;min-height:20vh}
+.pcard{background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:.6em .9em;font-weight:600}
+.pcard.sel{outline:4px solid var(--yel);transform:scale(1.04)}
+.pcard.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:1.5vw;flex:1}
+.bin{background:var(--panel);border:3px dashed var(--line);border-radius:18px;padding:1vh 1vw;min-height:24vh;display:flex;flex-direction:column;gap:.8vh}
+.bin h3{text-align:center;font-size:1.3em}
+.bin .pcard{background:rgba(74,222,128,.2);border-color:var(--grn);font-size:.85em}
+.hub{display:grid;grid-template-columns:1fr 1fr;gap:1.5vw;flex:1}
+.hub .btn{font-size:1.2em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3em;background:var(--panel);min-height:22vh}
+.hub .btn span{font-size:2.4em}
+.hub .btn small{font-size:.65em;color:var(--mut);font-weight:400}
+.teamsel{display:flex;gap:.8vw;align-items:center;flex-wrap:wrap}
+.solution{background:var(--panel);border:2px solid var(--grn);border-radius:16px;padding:1vh 1.2vw}
+.emo{display:flex;gap:2vw;justify-content:center}
+.emo button{font-size:2.6em;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:.1em .4em}
+.emo button small{font-size:.35em;display:block;color:var(--yel)}
+/* bar & overlays */
+#bar{position:fixed;left:0;right:0;bottom:0;height:68px;background:#080e26;border-top:2px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 14px;z-index:60}
+#bar .btn{min-width:64px;min-height:50px;padding:.2em .7em;font-size:1.3rem}
+#prog{flex:1;display:flex;flex-direction:column;gap:5px;align-items:center}
+#prog .t{font-size:.95rem;color:var(--mut)}
+#prog .l{width:100%;height:8px;background:var(--line);border-radius:5px;overflow:hidden}
+#prog .l i{display:block;height:100%;background:var(--yel);width:0;transition:.3s}
+#pen{position:fixed;inset:0;z-index:40;pointer-events:none;touch-action:none}
+#pen.on{pointer-events:auto;cursor:crosshair}
+#pal{position:fixed;right:14px;bottom:78px;z-index:61;background:#0c1538;border:2px solid var(--line);border-radius:16px;padding:8px;display:none;gap:8px;align-items:center}
+#pal.show{display:flex}
+#pal .c{width:44px;height:44px;border-radius:50%;border:3px solid #fff3}
+#pal .c.on{border-color:#fff}
+#menu{position:fixed;inset:0;background:rgba(5,9,25,.92);z-index:70;display:none;padding:4vh 4vw;overflow:auto}
+#menu.show{display:block}
+#menu .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+#menu .btn{text-align:left}
+@media (max-width:820px){.row{flex-direction:column}.grid3{grid-template-columns:1fr 1fr}.pair,.ans,.hub{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main id="deck">
+
+<!-- 1. ЗАСТАВКА -->
+<section class="slide active" id="s-title" data-title="Заставка">
+  <span class="tag">Открытый урок физики</span>
+  <h1>Квантовая природа света</h1>
+  <div class="eq">E = hν</div>
+  <div class="sub">От «ультрафиолетовой катастрофы» до солнечных батарей</div>
+  <p class="mut">Нажмите ▶ внизу, чтобы начать</p>
+  <svg class="wave" viewBox="0 0 1200 160" preserveAspectRatio="none"><path id="wv" fill="none" stroke="#4fd1ff" stroke-width="4"/><path id="wv2" fill="none" stroke="#ffd24a" stroke-width="3" opacity=".7"/></svg>
+</section>
+
+<!-- 2. ВОПРОС УРОКА -->
+<section class="slide" id="s-hook" data-title="Вопрос урока">
+  <h2>🤔 Вопрос урока</h2>
+  <div class="card-p big" style="margin-top:2vh">
+    Солнечный ожог даёт <b class="hl4">ультрафиолет</b> — даже когда он совсем слабый.<br>
+    А мощный <b class="hl5">красный прожектор</b> не обжигает кожу вовсе.<br><br>
+    <b class="hl1">Почему «сила» света не главное?</b>
+  </div>
+  <div class="card-p step"><b class="hl2">Подсказка:</b> свет передаёт энергию не «непрерывной рекой», а отдельными порциями…</div>
+  <div class="card-p step"><b class="hl3">Ответ</b> найдём вместе — и вернёмся к нему в конце урока.</div>
+</section>
+
+<!-- 3. ПЛАН -->
+<section class="slide" id="s-plan" data-title="План урока">
+  <h2>План урока</h2>
+  <ul class="clean grow" style="justify-content:space-around">
+    <li><span class="num">1</span>Кризис классической физики: излучение нагретых тел</li>
+    <li><span class="num">2</span>Гипотеза Планка: свет излучается квантами</li>
+    <li><span class="num">3</span>Фотоэффект: опыт, виртуальная лаборатория, законы</li>
+    <li><span class="num">4</span>Уравнение Эйнштейна и красная граница</li>
+    <li><span class="num">5</span>Фотон: энергия и импульс. Корпускулярно-волновой дуализм</li>
+    <li><span class="num">6</span>🎮 Игры с участием всего класса и итоги</li>
+  </ul>
+</section>
+
+<!-- 4. КРИЗИС -->
+<section class="slide" id="s-crisis" data-title="Кризис классической физики">
+  <h2>1. Кризис: излучение нагретых тел</h2>
+  <div class="row grow">
+    <div class="col" style="flex:1.3">
+      <div class="card-p" style="padding:.8vh .8vw"><canvas id="crCv" width="760" height="420" style="width:100%"></canvas></div>
+    </div>
+    <div class="col">
+      <div class="card-p"><b class="hl2">Опыт:</b> нагретое тело излучает свет, а спектр имеет <b>максимум</b> и спадает в ультрафиолете.</div>
+      <div class="card-p step"><b class="hl5">Классическая теория</b> (Рэлей — Джинс) предсказывала: чем короче волна, тем энергии больше — до <b>бесконечности</b>!</div>
+      <div class="card-p step"><b class="hl1">«Ультрафиолетовая катастрофа»</b> — теория расходится с опытом. Нужна новая идея.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. ПЛАНК -->
+<section class="slide" id="s-planck" data-title="Гипотеза Планка">
+  <h2>2. Гипотеза Макса Планка (1900)</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="card-p">Атомы излучают и поглощают энергию не как угодно, а <b class="hl1">порциями — квантами</b>.</div>
+      <div class="formula">ε = h · ν<small>h = 6,63·10⁻³⁴ Дж·с — постоянная Планка · ν — частота света</small></div>
+      <div class="card-p step">Чем выше частота, тем <b class="hl4">крупнее порция</b> энергии: фиолетовый квант «тяжелее» красного.</div>
+      <div class="card-p step mut">Планк получил Нобелевскую премию в 1918 году. Сам он долго сомневался в своей идее!</div>
+    </div>
+    <div class="col">
+      <div class="card-p" style="flex:1">
+        <h3>Лесенка энергии</h3>
+        <svg viewBox="0 0 420 300" style="width:100%;height:auto">
+          <g stroke="#9fb0ee" stroke-width="3" fill="none"><path d="M40 270 H380"/></g>
+          <g fill="#4fd1ff"><rect x="60" y="230" width="70" height="40" rx="4"/></g>
+          <g fill="#ffd24a"><rect x="150" y="190" width="70" height="80" rx="4" opacity=".9"/></g>
+          <g fill="#a78bfa"><rect x="240" y="110" width="70" height="160" rx="4" opacity=".9"/></g>
+          <text x="95" y="222" fill="#4fd1ff" font-size="18" text-anchor="middle">hν</text>
+          <text x="185" y="182" fill="#ffd24a" font-size="18" text-anchor="middle">2hν</text>
+          <text x="275" y="102" fill="#a78bfa" font-size="18" text-anchor="middle">4hν</text>
+          <text x="210" y="296" fill="#9fb0ee" font-size="16" text-anchor="middle">энергия = целое число квантов</text>
+          <text x="345" y="140" fill="#ff6b6b" font-size="34" text-anchor="middle">✗</text>
+          <text x="345" y="175" fill="#ff6b6b" font-size="15" text-anchor="middle">«полтора кванта»</text>
+          <text x="345" y="195" fill="#ff6b6b" font-size="15" text-anchor="middle">не бывает</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. ФОТОЭФФЕКТ -->
+<section class="slide" id="s-photo" data-title="Фотоэффект">
+  <h2>3. Фотоэффект</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="card-p"><b class="hl1">Фотоэффект</b> — вырывание электронов из вещества под действием света.</div>
+      <ul class="clean">
+        <li>1887 — Г. Герц наблюдает эффект</li>
+        <li>1888–1890 — А. Г. Столетов изучает его законы</li>
+        <li>1905 — А. Эйнштейн объясняет через фотоны <span class="mut">(Нобелевская премия 1921)</span></li>
+      </ul>
+      <div class="card-p step"><b class="hl2">Электроны, вылетевшие из металла, — фотоэлектроны.</b> Их поток создаёт фототок.</div>
+    </div>
+    <div class="col">
+      <div class="card-p" style="flex:1">
+        <h3>Схема опыта (фотоэлемент)</h3>
+        <svg viewBox="0 0 620 360" style="width:100%;height:auto">
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a78bfa"/></marker></defs>
+          <ellipse cx="320" cy="140" rx="210" ry="110" fill="rgba(120,180,255,.08)" stroke="#6ea8ff" stroke-width="3"/>
+          <rect x="160" y="85" width="14" height="110" rx="4" fill="#ffd24a"/>
+          <rect x="465" y="105" width="10" height="70" rx="4" fill="#cbd5e1"/>
+          <text x="200" y="75" fill="#ffd24a" font-size="19" text-anchor="middle">К (катод)</text>
+          <text x="440" y="90" fill="#cbd5e1" font-size="19" text-anchor="middle">А (анод)</text>
+          <g stroke="#a78bfa" stroke-width="4" fill="none" marker-end="url(#ar)">
+            <path d="M30 30 L148 100"/><path d="M30 80 L148 130"/><path d="M60 5 L150 78"/>
+          </g>
+          <text x="40" y="125" fill="#a78bfa" font-size="19">свет hν</text>
+          <g fill="#5ab0ff"><circle cx="215" cy="110" r="7"/><circle cx="270" cy="140" r="7"/><circle cx="330" cy="125" r="7"/><circle cx="395" cy="145" r="7"/><circle cx="240" cy="165" r="7"/></g>
+          <text x="320" y="100" fill="#5ab0ff" font-size="17" text-anchor="middle">e⁻ →</text>
+          <path d="M167 195 V310 H255 M335 310 H470 V296 M470 175 V244" stroke="#eef2ff" stroke-width="3" fill="none"/>
+          <path d="M255 292 V328 M275 300 V320 M295 292 V328 M315 300 V320 M335 292 V328" stroke="#eef2ff" stroke-width="4"/>
+          <text x="300" y="354" fill="#9fb0ee" font-size="16" text-anchor="middle">источник напряжения</text>
+          <circle cx="470" cy="270" r="26" fill="#0b1330" stroke="#4ade80" stroke-width="3"/>
+          <text x="470" y="278" fill="#4ade80" font-size="24" text-anchor="middle" font-weight="700">A</text>
+          <text x="503" y="276" fill="#4ade80" font-size="16">амперметр</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. ВИРТУАЛЬНАЯ ЛАБОРАТОРИЯ -->
+<section class="slide" id="s-lab" data-title="Виртуальная лаборатория">
+  <div class="gh"><h2>🔬 Виртуальная лаборатория</h2><span class="tag">Класс предсказывает → учитель проверяет</span></div>
+  <div class="row grow">
+    <div class="col" style="flex:1.6">
+      <div class="card-p" style="padding:.6vh .6vw"><canvas id="simCv" width="900" height="470" style="width:100%"></canvas></div>
+      <div class="sl"><label>Длина волны λ: <b id="lamV">400</b> нм</label><input type="range" id="lam" min="200" max="700" value="400"></div>
+      <div class="sl"><label>Яркость света: <b id="intV">5</b></label><input type="range" id="int" min="1" max="10" value="5"></div>
+      <div class="chips" id="metals"></div>
+    </div>
+    <div class="col" style="flex:1">
+      <div class="status" id="stat"></div>
+      <div class="card-p read">
+        <span>Энергия фотона E = hν</span><b id="rE"></b>
+        <span>Работа выхода A</span><b id="rA"></b>
+        <span>Частота ν</span><b id="rN"></b>
+        <span class="hl3">Макс. энергия e⁻ (E − A)</span><b id="rK" class="hl3"></b>
+        <span>Задерживающее напряжение</span><b id="rU"></b>
+        <span>Фототок (усл. ед.)</span><b id="rI"></b>
+      </div>
+      <div class="card-p" style="padding:.6vh .6vw"><canvas id="grCv" width="420" height="230" style="width:100%"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. ЗАКОНЫ -->
+<section class="slide" id="s-laws" data-title="Законы фотоэффекта">
+  <h2>Законы фотоэффекта (Столетов)</h2>
+  <div class="pair" style="grid-template-columns:1fr 1fr">
+    <div class="step shown" style="background:transparent;border:0;padding:0"><h3>✅ Что наблюдают в опыте</h3></div>
+    <div class="step shown" style="background:transparent;border:0;padding:0"><h3>❌ Что ждали от волновой теории</h3></div>
+    <div class="step"><b class="hl1">1.</b> Число фотоэлектронов пропорционально <b>яркости</b> света.</div>
+    <div class="step mut">Согласуется — ярче свет, больше электронов.</div>
+    <div class="step"><b class="hl1">2.</b> Энергия фотоэлектронов зависит от <b>частоты</b> и рода металла, но <b>не от яркости</b>.</div>
+    <div class="step">Чем ярче волна, тем сильнее «раскачка» электрона — энергия должна расти с яркостью.</div>
+    <div class="step"><b class="hl1">3.</b> Есть <b>красная граница</b> ν₀: при ν &lt; ν₀ фотоэффекта нет, даже при огромной яркости.</div>
+    <div class="step">Любая частота должна работать — достаточно подождать и «накопить» энергию.</div>
+    <div class="step"><b class="hl1">4.</b> Фотоэффект <b>безинерционен</b>: электроны вылетают сразу (~10⁻⁹ с).</div>
+    <div class="step">Нужна задержка на накопление энергии — секунды и минуты.</div>
+  </div>
+  <div class="card-p step"><b class="hl4">Вывод:</b> классическая волновая теория бессильна — нужна квантовая идея Эйнштейна.</div>
+</section>
+
+<!-- 9. ЭЙНШТЕЙН -->
+<section class="slide" id="s-einstein" data-title="Уравнение Эйнштейна">
+  <h2>4. Уравнение Эйнштейна (1905)</h2>
+  <div class="formula">hν = <span class="hl2">A</span> + <span class="hl3">m v²⁄2</span><small>энергия фотона = работа выхода + кинетическая энергия электрона</small></div>
+  <div class="row">
+    <div class="col">
+      <ul class="clean">
+        <li><b class="hl2">A</b> — работа выхода: минимальная энергия, чтобы вырвать электрон из металла</li>
+        <li class="step"><b class="hl1">Красная граница:</b> ν₀ = A / h, или λₘₐₓ = hc / A</li>
+        <li class="step"><b class="hl3">Задерживающее напряжение:</b> e·U<sub>з</sub> = m v²⁄2</li>
+      </ul>
+    </div>
+    <div class="col">
+      <div class="card-p">
+        <table>
+          <tr><th>Металл</th><th>A, эВ</th><th>λₘₐₓ, нм</th></tr>
+          <tr><td>Цезий</td><td>1,9</td><td>650</td></tr>
+          <tr><td>Натрий</td><td>2,3</td><td>540</td></tr>
+          <tr><td>Цинк</td><td>4,3</td><td>290</td></tr>
+          <tr><td>Медь</td><td>4,7</td><td>260</td></tr>
+        </table>
+        <p class="mut" style="font-size:.8em">Удобно: E[эВ] = 1240 / λ[нм]</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. ПРИМЕР ЗАДАЧИ -->
+<section class="slide" id="s-example" data-title="Разбор задачи">
+  <h2>✍️ Разбор задачи</h2>
+  <div class="card-p big">Свет с длиной волны <b class="hl1">250 нм</b> падает на <b class="hl2">цинк</b> (A = 4,3 эВ). Будет ли фотоэффект? Найдите энергию электронов и красную границу.</div>
+  <ul class="clean grow" style="justify-content:space-around">
+    <li class="step"><span class="num">1</span>Энергия фотона: E = 1240 / 250 = <b class="hl1">4,96 эВ</b></li>
+    <li class="step"><span class="num">2</span>Сравним: 4,96 &gt; 4,3 → фотоэффект <b class="hl3">есть</b> ✅</li>
+    <li class="step"><span class="num">3</span>Энергия электрона: E<sub>k</sub> = 4,96 − 4,3 = <b class="hl3">0,66 эВ</b> (U<sub>з</sub> = 0,66 В)</li>
+    <li class="step"><span class="num">4</span>Красная граница: λₘₐₓ = 1240 / 4,3 ≈ <b class="hl2">288 нм</b> — для света длиннее эффекта нет</li>
+  </ul>
+</section>
+
+<!-- 11. ФОТОН -->
+<section class="slide" id="s-photon" data-title="Фотон">
+  <h2>5. Фотон — квант света</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="grid2">
+        <div class="formula" style="font-size:clamp(24px,3vw,60px)">E = hν = hc/λ</div>
+        <div class="formula" style="font-size:clamp(24px,3vw,60px)">p = h/λ = E/c</div>
+      </div>
+      <div class="card-p">Фотон не имеет массы покоя (<b>m₀ = 0</b>), всегда движется со скоростью света и обладает импульсом — давит на поверхность (опыты П. Н. Лебедева).</div>
+      <div class="sl"><label>λ = <b id="pL">550</b> нм</label><input type="range" id="pLam" min="10" max="800" value="550"></div>
+      <div class="chips" id="pPre"></div>
+    </div>
+    <div class="col">
+      <div class="card-p" id="pBox">
+        <div id="pColor" style="height:60px;border-radius:12px;margin-bottom:1vh"></div>
+        <div class="read">
+          <span>Область спектра</span><b id="pReg"></b>
+          <span>Частота ν</span><b id="pN"></b>
+          <span class="hl1">Энергия E, эВ</span><b id="pEv" class="hl1"></b>
+          <span>Энергия E, Дж</span><b id="pEj"></b>
+          <span class="hl4">Импульс p, кг·м/с</span><b id="pP" class="hl4"></b>
+        </div>
+      </div>
+      <div class="card-p mut" style="font-size:.85em">Сравните красный (700 нм) и фиолетовый (400 нм) фотоны. У кого энергия больше?</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. ДУАЛИЗМ -->
+<section class="slide" id="s-duality" data-title="Дуализм">
+  <h2>Корпускулярно-волновой дуализм</h2>
+  <div class="grid2 grow">
+    <div class="card-p"><h3>🌊 Свет — волна</h3><ul style="margin:0;padding-left:1.1em"><li>интерференция</li><li>дифракция</li><li>поляризация</li></ul></div>
+    <div class="card-p"><h3>⚛ Свет — поток фотонов</h3><ul style="margin:0;padding-left:1.1em"><li>фотоэффект</li><li>красная граница</li><li>эффект Комптона, давление света</li></ul></div>
+  </div>
+  <div class="card-p step big"><b class="hl1">Свет — и то и другое.</b> Какие свойства проявятся, зависит от опыта. Чем больше длина волны, тем заметнее волновые свойства; чем меньше — тем заметнее квантовые.</div>
+  <div class="card-p step"><b class="hl4">Луи де Бройль (1924):</b> волновые свойства есть и у частиц вещества — λ = h/p. Так родилась квантовая механика.</div>
+</section>
+
+<!-- 13. ПРИМЕНЕНИЕ -->
+<section class="slide" id="s-apps" data-title="Применение">
+  <div class="gh"><h2>Где работает фотоэффект?</h2><span class="tag">Коснитесь плитки</span></div>
+  <div class="grid3 grow">
+    <div class="tile"><div class="ic">☀️</div><b>Солнечные батареи</b><div class="more">Фотоны выбивают электроны в полупроводнике — получаем ток. В Казахстане строят всё больше солнечных электростанций.</div></div>
+    <div class="tile"><div class="ic">🚪</div><b>Автоматические двери</b><div class="more">Луч на фотоэлемент: пока его никто не перекрыл, ток есть. Перекрыли — дверь реагирует.</div></div>
+    <div class="tile"><div class="ic">📷</div><b>Матрица камеры</b><div class="more">Каждый пиксель — крошечный фотодатчик, считающий фотоны.</div></div>
+    <div class="tile"><div class="ic">🎬</div><b>Звук в кино</b><div class="more">Фонограмма на плёнке читалась фотоэлементом и превращалась в звук.</div></div>
+    <div class="tile"><div class="ic">🚇</div><b>Турникеты и охрана</b><div class="more">Фотореле: пересечение луча = сигнал.</div></div>
+    <div class="tile"><div class="ic">🌙</div><b>Ночное видение</b><div class="more">Фотоумножители усиливают слабый свет в тысячи раз.</div></div>
+  </div>
+</section>
+
+<!-- 14. ХАБ ИГР -->
+<section class="slide" id="s-hub" data-title="Игры">
+  <div class="gh"><h2>🎮 Игры для класса</h2></div>
+  <div class="card-p teamsel"><b>Команд:</b>
+    <button class="btn" data-n="1">1</button><button class="btn" data-n="2">2</button><button class="btn" data-n="3">3</button><button class="btn" data-n="4">4</button>
+    <button class="btn" id="resetScore">Сбросить счёт</button>
+    <div class="scoreboard" style="margin-left:auto"></div>
+  </div>
+  <div class="hub">
+    <button class="btn" data-go="g-quiz"><span>🎯</span>Викторина<small>10 вопросов, ходят по очереди</small></button>
+    <button class="btn" data-go="g-blitz"><span>⚡</span>Верно / Неверно<small>блиц на 8 секунд</small></button>
+    <button class="btn" data-go="g-sort"><span>🧲</span>Волна или фотон?<small>разложи карточки</small></button>
+    <button class="btn" data-go="g-task"><span>🧮</span>Будет ли фотоэффект?<small>быстрые задачи</small></button>
+  </div>
+</section>
+
+<!-- 15. ВИКТОРИНА -->
+<section class="slide" id="g-quiz" data-title="Игра: Викторина">
+  <div class="gh"><h2>🎯 Викторина</h2><div class="scoreboard"></div></div>
+  <div class="mut" id="qCount"></div>
+  <div class="qtext" id="qText"></div>
+  <div class="ans" id="qAns"></div>
+  <div class="gh"><div id="qFb" class="big"></div><button class="btn pri" id="qNext" style="display:none">Дальше ▶</button></div>
+</section>
+
+<!-- 16. БЛИЦ -->
+<section class="slide" id="g-blitz" data-title="Игра: Верно / Неверно">
+  <div class="gh"><h2>⚡ Верно / Неверно</h2><div class="scoreboard"></div></div>
+  <div class="mut" id="bCount"></div>
+  <div class="bar"><i id="bBar"></i></div>
+  <div class="qtext" id="bText" style="font-size:1.6em"></div>
+  <div class="ans">
+    <button class="btn" id="bT" style="min-height:14vh;font-size:1.6em;text-align:center">✔ Верно</button>
+    <button class="btn" id="bF" style="min-height:14vh;font-size:1.6em;text-align:center">✘ Неверно</button>
+  </div>
+  <div id="bFb" class="big"></div>
+</section>
+
+<!-- 17. СОРТИРОВКА -->
+<section class="slide" id="g-sort" data-title="Игра: Волна или фотон">
+  <div class="gh"><h2>🧲 Волна или фотон?</h2><div class="scoreboard"></div></div>
+  <div class="mut">Коснитесь карточки, затем корзины, к которой она относится.</div>
+  <div class="pool" id="sPool"></div>
+  <div class="bins">
+    <div class="bin" data-k="w"><h3>🌊 Волновые свойства</h3><div class="pool" id="binW"></div></div>
+    <div class="bin" data-k="q"><h3>⚛ Квантовые свойства</h3><div class="pool" id="binQ"></div></div>
+  </div>
+  <div class="gh"><div id="sFb" class="big"></div><button class="btn" id="sAgain">Сыграть заново</button></div>
+</section>
+
+<!-- 18. ЗАДАЧИ -->
+<section class="slide" id="g-task" data-title="Игра: Будет ли фотоэффект">
+  <div class="gh"><h2>🧮 Будет ли фотоэффект?</h2><div class="scoreboard"></div></div>
+  <div class="card-p big" id="tText"></div>
+  <div class="gh"><button class="btn pri" id="tShow">Показать решение</button><button class="btn" id="tNew">Новая задача</button></div>
+  <div class="solution" id="tSol" style="display:none"></div>
+  <p class="mut">Подсказка: E[эВ] = 1240 / λ[нм]. Очки команде — кнопками «+» в таблице.</p>
+</section>
+
+<!-- 19. ИТОГИ -->
+<section class="slide" id="s-end" data-title="Итоги">
+  <h2>Итоги урока</h2>
+  <div class="card-p"><b class="hl1">Ответ на вопрос урока:</b> энергия света передаётся фотонами E = hν. Фотон ультрафиолета несёт больше энергии, чем нужно для «ожога» клеток, а красный фотон — слишком «слабый», сколько бы их ни светило.</div>
+  <ul class="clean">
+    <li><span class="num">1</span>Свет излучается и поглощается <b>квантами</b>: E = hν</li>
+    <li><span class="num">2</span>Фотоэффект: hν = A + m v²⁄2, есть <b>красная граница</b></li>
+    <li><span class="num">3</span>Яркость меняет <b>число</b> электронов, частота — их <b>энергию</b></li>
+    <li><span class="num">4</span>У света двойственная природа — <b>волна и частица</b></li>
+  </ul>
+  <div class="row">
+    <div class="card-p col"><h3>🏠 Домашнее задание</h3>Найдите красную границу для натрия и калия. Рассчитайте энергию электронов при λ = 300 нм. Придумайте 3 вопроса для викторины.</div>
+    <div class="card-p col"><h3>Как вам урок?</h3><div class="emo" id="emo"><button>😀<small>0</small></button><button>😐<small>0</small></button><button>🙁<small>0</small></button></div></div>
+  </div>
+</section>
+
+</main>
+
+<canvas id="pen"></canvas>
+<div id="pal"></div>
+<nav id="bar">
+  <button class="btn" id="bMenu" title="Список слайдов">☰</button>
+  <button class="btn" id="bPrev" title="Назад">◀</button>
+  <div id="prog"><div class="t" id="progT"></div><div class="l"><i id="progL"></i></div></div>
+  <button class="btn pri" id="bNext" title="Далее">▶</button>
+  <button class="btn" id="bPen" title="Рисовать пальцем / маркером">✏️</button>
+  <button class="btn" id="bFs" title="На весь экран">⛶</button>
+</nav>
+<div id="menu"><h2 style="margin-bottom:2vh">Слайды</h2><div class="grid" id="menuGrid"></div><button class="btn" id="menuClose" style="margin-top:2vh">Закрыть</button></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const sup=s=>String(s).replace(/[-0-9]/g,c=>'⁻⁰¹²³⁴⁵⁶⁷⁸⁹'['-0123456789'.indexOf(c)]);
+const sci=x=>{const [m,e]=x.toExponential(2).split('e');return m.replace('.',',')+'·10'+sup(parseInt(e))};
+const fmt=(x,d=2)=>x.toFixed(d).replace('.',',');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ============ ДЕК ============ */
+const slides=$$('.slide');let cur=0;
+function go(i){
+  i=Math.max(0,Math.min(slides.length-1,i));
+  const prev=slides[cur].id;
+  slides[cur].classList.remove('active');cur=i;slides[cur].classList.add('active');
+  progress();clearPen();
+  document.dispatchEvent(new CustomEvent('slidechange',{detail:{id:slides[cur].id,prev}}));
+}
+function goId(id){go(slides.findIndex(s=>s.id===id))}
+function next(){
+  const hid=$('.step:not(.shown)',slides[cur]);
+  if(hid){hid.classList.add('shown');return}
+  go(cur+1);
+}
+function prev(){go(cur-1)}
+function progress(){
+  $('#progT').textContent=(cur+1)+' / '+slides.length+' · '+slides[cur].dataset.title;
+  $('#progL').style.width=((cur+1)/slides.length*100)+'%';
+}
+$('#bNext').onclick=next;$('#bPrev').onclick=prev;
+$('#bFs').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()};
+$('#menuGrid').innerHTML='';
+slides.forEach((s,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=(i+1)+'. '+s.dataset.title;b.onclick=()=>{$('#menu').classList.remove('show');go(i)};$('#menuGrid').appendChild(b)});
+$('#bMenu').onclick=()=>$('#menu').classList.add('show');
+$('#menuClose').onclick=()=>$('#menu').classList.remove('show');
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next()}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}
+  else if(e.key==='p'||e.key==='з')togglePen();
+  else if(e.key==='f'||e.key==='а')$('#bFs').click();
+});
+let sx=null,sy=null;
+$('#deck').addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY});
+$('#deck').addEventListener('pointerup',e=>{
+  if(sx===null)return;const dx=e.clientX-sx,dy=e.clientY-sy;sx=null;
+  if(Math.abs(dx)>110&&Math.abs(dy)<70&&!e.target.closest('input,button,canvas,.pcard,.bin')){dx<0?next():prev()}
+});
+$$('.tile').forEach(t=>t.onclick=()=>t.classList.toggle('open'));
+$$('[data-go]').forEach(b=>b.onclick=()=>goId(b.dataset.go));
+
+/* ============ ЗАСТАВКА: волна ============ */
+(function(){
+  const a=$('#wv'),b=$('#wv2');let t=0,on=true;
+  function f(off,amp,k){let d='M0 80';for(let x=0;x<=1200;x+=15)d+=' L'+x+' '+(80+Math.sin(x/k+t+off)*amp);return d}
+  function loop(){ if(slides[cur].id==='s-title'){t+=.04;a.setAttribute('d',f(0,45,60));b.setAttribute('d',f(1.5,28,38))} requestAnimationFrame(loop)}
+  loop();
+})();
+
+/* ============ КОМАНДЫ ============ */
+const Teams={n:2,sc:[0,0,0,0],act:0,
+  render(){
+    $$('.scoreboard').forEach(box=>{
+      box.innerHTML='';
+      for(let i=0;i<this.n;i++){
+        const c=document.createElement('div');c.className='chip'+(i===this.act?' on':'');
+        c.innerHTML='<b>Команда '+(i+1)+'</b><span class="pts">'+this.sc[i]+'</span><button data-d="-1">−</button><button data-d="1">+</button>';
+        c.onclick=e=>{const d=e.target.dataset&&e.target.dataset.d;if(d){this.sc[i]=Math.max(0,this.sc[i]+(+d))}else this.act=i;this.render()};
+        box.appendChild(c);
+      }
+    });
+    $$('.teamsel [data-n]').forEach(b=>b.classList.toggle('on',+b.dataset.n===this.n));
+  },
+  award(k=1){this.sc[this.act]+=k;this.render()},
+  next(){this.act=(this.act+1)%this.n;this.render()},
+  setN(n){this.n=n;if(this.act>=n)this.act=0;this.render()},
+  reset(){this.sc=[0,0,0,0];this.act=0;this.render()}
+};
+$$('.teamsel [data-n]').forEach(b=>b.onclick=()=>Teams.setN(+b.dataset.n));
+$('#resetScore').onclick=()=>Teams.reset();
+Teams.render();
+
+/* ============ КРИЗИС: график ============ */
+(function(){
+  const cv=$('#crCv'),c=cv.getContext('2d'),W=cv.width,H=cv.height,L=60,R=20,T=24,B=50;
+  const xs=x=>L+(x-0.05)/(1.6-0.05)*(W-L-R), ys=y=>H-B-y/30*(H-B-T);
+  c.fillStyle='#0f1840';c.fillRect(0,0,W,H);
+  c.strokeStyle='#9fb0ee';c.lineWidth=2;c.beginPath();c.moveTo(L,T);c.lineTo(L,H-B);c.lineTo(W-R,H-B);c.stroke();
+  c.fillStyle='#9fb0ee';c.font='20px system-ui';c.fillText('длина волны λ →',W-210,H-14);
+  c.save();c.translate(20,H/2+60);c.rotate(-Math.PI/2);c.fillText('энергия излучения →',0,0);c.restore();
+  c.fillStyle='#a78bfa';c.fillText('УФ',L+10,H-B+26);
+  const plot=(f,col,w,clip)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();let st=false;
+    for(let x=0.08;x<=1.6;x+=0.004){let y=f(x);if(clip&&y>30)y=30.5;const px=xs(x),py=ys(y);st?c.lineTo(px,py):(c.moveTo(px,py),st=true)}c.stroke()};
+  plot(x=>Math.pow(x,-5)/(Math.exp(1/x)-1),'#4ade80',5);
+  plot(x=>Math.pow(x,-4),'#ff6b6b',4,true);
+  c.fillStyle='#4ade80';c.font='bold 22px system-ui';c.fillText('Опыт и формула Планка',xs(0.55),ys(21));
+  c.fillStyle='#ff6b6b';c.fillText('Классика: → ∞',xs(0.55),ys(26.5));
+  c.beginPath();c.fillStyle='#ff6b6b';c.fillText('↑',xs(0.09),ys(28));
+})();
+
+/* ============ ЛАБОРАТОРИЯ ============ */
+const lab=(function(){
+  const cv=$('#simCv'),ctx=cv.getContext('2d'),gv=$('#grCv'),gx=gv.getContext('2d');
+  const W=cv.width,H=cv.height,plateY=H-80;
+  const metals=[{n:'Цезий',A:1.9,c:'#d9b36b'},{n:'Натрий',A:2.3,c:'#c9ced6'},{n:'Цинк',A:4.3,c:'#8fa3b8'},{n:'Медь',A:4.7,c:'#c97a4a'},{n:'Платина',A:5.65,c:'#e5e7eb'}];
+  let lam=400,I=5,mi=0,ph=[],el=[],fl=[],acc=0,last=0,run=false;
+  const lampX=110,lampY=70;
+  function rgb(w){
+    if(w<380)return[160,120,255];
+    let r=0,g=0,b=0;
+    if(w<440){r=-(w-440)/60;b=1}else if(w<490){g=(w-440)/50;b=1}else if(w<510){g=1;b=-(w-510)/20}
+    else if(w<580){r=(w-510)/70;g=1}else if(w<645){r=1;g=-(w-645)/65}else r=1;
+    let f=1;if(w<420)f=.3+.7*(w-380)/40;else if(w>700)f=.3+.7*(750-w)/50;
+    return[r*f*255|0,g*f*255|0,b*f*255|0];
+  }
+  const col=(a=1)=>{const c=rgb(lam);return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'};
+  const E=()=>1240/lam, A=()=>metals[mi].A, Ek=()=>Math.max(0,E()-A());
+  const chips=$('#metals');
+  metals.forEach((m,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=m.n+' ('+fmt(m.A,m.A%1?2:1).replace(/,?0$/,'')+' эВ)';b.onclick=()=>{mi=i;upd()};chips.appendChild(b)});
+  $('#lam').oninput=e=>{lam=+e.target.value;upd()};
+  $('#int').oninput=e=>{I=+e.target.value;upd()};
+  function upd(){
+    $('#lamV').textContent=lam;$('#intV').textContent=I;
+    $$('.btn',chips).forEach((b,i)=>b.classList.toggle('on',i===mi));
+    const e=E(),k=Ek(),yes=k>0;
+    $('#rE').textContent=fmt(e)+' эВ';$('#rA').textContent=fmt(A())+' эВ';
+    $('#rN').textContent=fmt(3000/lam,1)+'·10¹⁴ Гц';
+    $('#rK').textContent=yes?fmt(k)+' эВ':'—';$('#rU').textContent=yes?fmt(k)+' В':'—';
+    $('#rI').textContent=yes?I:0;
+    const s=$('#stat');s.className='status '+(yes?'yes':'no');
+    s.textContent=yes?'Фотоэффект ЕСТЬ: E > A':'Фотоэффекта НЕТ: E < A';
+    graph();
+  }
+  function graph(){
+    const w=gv.width,h=gv.height,l=56,r=14,t=22,b=44,xm=15,ym=4.5;
+    const X=v=>l+v/xm*(w-l-r),Y=v=>h-b-v/ym*(h-b-t),A_=A();
+    gx.fillStyle='#0f1840';gx.fillRect(0,0,w,h);
+    gx.strokeStyle='#9fb0ee';gx.lineWidth=2;gx.beginPath();gx.moveTo(l,t);gx.lineTo(l,h-b);gx.lineTo(w-r,h-b);gx.stroke();
+    gx.fillStyle='#9fb0ee';gx.font='15px system-ui';
+    gx.fillText('ν, 10¹⁴ Гц →',w-112,h-8);gx.fillText('Eₖ, эВ',6,16);
+    for(let v=0;v<=xm;v+=5){gx.fillText(v,X(v)-6,h-b+18)}
+    for(let v=0;v<=4;v+=1){gx.fillText(v,l-22,Y(v)+5)}
+    const n0=A_/0.4133;
+    gx.save();gx.beginPath();gx.rect(l,t,w-l-r,h-b-t);gx.clip();
+    gx.strokeStyle='#ffd24a';gx.lineWidth=4;gx.beginPath();gx.moveTo(X(n0),Y(0));gx.lineTo(X(xm),Y(0.4133*xm-A_));gx.stroke();
+    gx.restore();
+    gx.fillStyle='#ffd24a';gx.fillText('ν₀',X(n0)-8,h-b+34);
+    const nu=3000/lam,k=Ek();
+    gx.setLineDash([5,5]);gx.strokeStyle='#ffffff55';gx.lineWidth=1.5;gx.beginPath();gx.moveTo(X(nu),h-b);gx.lineTo(X(nu),Y(k));gx.lineTo(l,Y(k));gx.stroke();gx.setLineDash([]);
+    gx.fillStyle=col();gx.beginPath();gx.arc(X(nu),Y(k),9,0,7);gx.fill();gx.strokeStyle='#fff';gx.lineWidth=2;gx.stroke();
+  }
+  function spawn(){
+    const tx=380+Math.random()*320,dx=tx-lampX,dy=plateY-lampY,d=Math.hypot(dx,dy),sp=430;
+    ph.push({x:lampX+Math.random()*30-15,y:lampY+Math.random()*30,vx:dx/d*sp,vy:dy/d*sp,tx});
+  }
+  function step(dt){
+    acc+=dt*I*2.5;while(acc>=1){acc--;spawn()}
+    for(let i=ph.length-1;i>=0;i--){const p=ph[i];p.x+=p.vx*dt;p.y+=p.vy*dt;
+      if(p.y>=plateY){ph.splice(i,1);const k=Ek();
+        if(k>0){const sp=90+120*Math.sqrt(k),a=(Math.random()-.5)*Math.PI*0.7;el.push({x:p.x,y:plateY-8,vx:Math.sin(a)*sp,vy:-Math.cos(a)*sp})}
+        else fl.push({x:p.x,y:plateY,t:0});}}
+    for(let i=el.length-1;i>=0;i--){const e=el[i];e.x+=e.vx*dt;e.y+=e.vy*dt;if(e.y<-20||e.x<-20||e.x>W+20)el.splice(i,1)}
+    for(let i=fl.length-1;i>=0;i--){fl[i].t+=dt;if(fl[i].t>.5)fl.splice(i,1)}
+  }
+  function draw(){
+    const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0c1538');g.addColorStop(1,'#101a42');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // конус света
+    ctx.fillStyle=col(.05+I*.018);ctx.beginPath();ctx.moveTo(lampX+10,lampY-10);ctx.lineTo(lampX+30,lampY+30);ctx.lineTo(700,plateY);ctx.lineTo(380,plateY);ctx.closePath();ctx.fill();
+    // лампа
+    ctx.fillStyle='#2b3a7a';ctx.fillRect(lampX-46,lampY-30,74,60);
+    ctx.fillStyle=col();ctx.beginPath();ctx.arc(lampX+30,lampY,24,0,7);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 17px system-ui';ctx.fillText(lam<380?'УФ (невидим)':'свет '+lam+' нм',lampX-50,lampY+58);
+    // пластина
+    const m=metals[mi];ctx.fillStyle=m.c;ctx.fillRect(300,plateY,560,28);ctx.fillStyle='#000a';ctx.font='bold 20px system-ui';ctx.fillText(m.n+' · A = '+fmt(m.A)+' эВ',320,plateY+21);
+    // фотоны
+    ctx.lineCap='round';
+    ph.forEach(p=>{const n=Math.hypot(p.vx,p.vy),ux=p.vx/n,uy=p.vy/n;
+      ctx.strokeStyle=col(.55);ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(p.x-ux*26,p.y-uy*26);ctx.lineTo(p.x,p.y);ctx.stroke();
+      ctx.fillStyle=col();ctx.beginPath();ctx.arc(p.x,p.y,8,0,7);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke()});
+    // вспышки: нет вылета
+    fl.forEach(f=>{ctx.strokeStyle='rgba(255,107,107,'+(1-f.t*2)+')';ctx.lineWidth=3;ctx.beginPath();ctx.arc(f.x,f.y,6+f.t*40,Math.PI,0);ctx.stroke()});
+    // электроны
+    el.forEach(e=>{ctx.fillStyle='#5ab0ff';ctx.beginPath();ctx.arc(e.x,e.y,9,0,7);ctx.fill();ctx.fillStyle='#04122e';ctx.font='bold 15px system-ui';ctx.fillText('−',e.x-4,e.y+5)});
+    ctx.fillStyle='#9fb0ee';ctx.font='17px system-ui';
+    ctx.fillText(Ek()>0?'Электроны вылетают, скорость зависит от (E − A)':'Энергии фотона не хватает — электроны не вылетают',320,H-12);
+  }
+  function tick(t){if(!run)return;const dt=Math.min(.05,(t-last)/1000);last=t;step(dt);draw();requestAnimationFrame(tick)}
+  function start(){if(run)return;run=true;last=performance.now();ph=[];el=[];fl=[];upd();requestAnimationFrame(tick)}
+  function stop(){run=false}
+  upd();
+  return{start,stop};
+})();
+document.addEventListener('slidechange',e=>{e.detail.id==='s-lab'?lab.start():lab.stop()});
+
+/* ============ ФОТОН: калькулятор ============ */
+(function(){
+  const sl=$('#pLam'),pre=$('#pPre');
+  const P=[['Рентген',10],['УФ',250],['Фиолетовый',400],['Зелёный',530],['Красный',700],['ИК',800]];
+  P.forEach(([n,v])=>{const b=document.createElement('button');b.className='btn';b.textContent=n+' '+v;b.onclick=()=>{sl.value=v;upd()};pre.appendChild(b)});
+  function color(w){
+    if(w<380||w>780)return'linear-gradient(90deg,#333,#555)';
+    let r=0,g=0,b=0;
+    if(w<440){r=-(w-440)/60;b=1}else if(w<490){g=(w-440)/50;b=1}else if(w<510){g=1;b=-(w-510)/20}
+    else if(w<580){r=(w-510)/70;g=1}else if(w<645){r=1;g=-(w-645)/65}else r=1;
+    return'rgb('+(r*255|0)+','+(g*255|0)+','+(b*255|0)+')';
+  }
+  function reg(w){return w<100?'рентген / жёсткий УФ':w<380?'ультрафиолет':w<450?'фиолетовый':w<495?'синий / голубой':w<570?'зелёный':w<590?'жёлтый':w<620?'оранжевый':w<=780?'красный':'инфракрасный'}
+  function upd(){
+    const w=+sl.value;$('#pL').textContent=w;
+    $('#pColor').style.background=color(w);
+    $('#pReg').textContent=reg(w);
+    $('#pN').textContent=sci(2.998e17/w)+' Гц';
+    $('#pEv').textContent=fmt(1239.84/w,w<20?0:2);
+    $('#pEj').textContent=sci(1.986e-16/w);
+    $('#pP').textContent=sci(6.626e-25/w);
+  }
+  sl.oninput=upd;upd();
+})();
+
+/* ============ ВИКТОРИНА ============ */
+const QUIZ=[
+ {q:'Чему равна энергия одного фотона?',a:['E = hν','E = h/ν','E = hν²','E = ν/h'],c:0},
+ {q:'Кто в 1900 году выдвинул гипотезу о квантах излучения?',a:['Макс Планк','Генрих Герц','Александр Столетов','Исаак Ньютон'],c:0},
+ {q:'Кто объяснил фотоэффект с помощью фотонов?',a:['Альберт Эйнштейн','Максвелл','Резерфорд','Галилей'],c:0},
+ {q:'От чего зависит максимальная энергия фотоэлектронов?',a:['От частоты света и рода металла','От яркости света','От времени облучения','От размера пластины'],c:0},
+ {q:'Яркость света увеличили (ν > ν₀). Что произойдёт?',a:['Электронов станет больше, их энергия не изменится','Энергия каждого электрона вырастет','Фотоэффект прекратится','Электроны станут тяжелее'],c:0},
+ {q:'Красная граница фотоэффекта — это…',a:['минимальная частота, при которой фотоэффект возможен','максимальная яркость света','цвет металла','самая длинная волна видимого света'],c:0},
+ {q:'Работа выхода цинка 4,3 эВ. Хватит ли красного света (≈1,9 эВ)?',a:['Нет, энергии фотона не хватает','Да, если свет очень яркий','Да, если ждать подольше','Зависит от толщины цинка'],c:0},
+ {q:'Как изменится импульс фотона p = h/λ, если длина волны увеличится?',a:['Уменьшится','Увеличится','Не изменится','Станет равным нулю'],c:0},
+ {q:'Чему приближённо равна постоянная Планка?',a:['6,63·10⁻³⁴ Дж·с','3·10⁸ м/с','9,8 м/с²','1,6·10⁻¹⁹ Кл'],c:0},
+ {q:'Какое устройство работает на основе фотоэффекта?',a:['Солнечная батарея','Трансформатор','Электромагнит','Динамик'],c:0}
+];
+(function(){
+  let qs,qi,locked,score;
+  function start(){qs=shuffle(QUIZ).map(o=>{const opts=o.a.map((t,i)=>({t,ok:i===o.c}));return{q:o.q,o:shuffle(opts)}});qi=0;score=0;show()}
+  function show(){
+    locked=false;$('#qNext').style.display='none';$('#qFb').textContent='';
+    if(qi>=qs.length){
+      $('#qCount').textContent='Игра окончена';$('#qText').textContent='🏆 Итоги: смотрите таблицу очков команд!';$('#qAns').innerHTML='';
+      $('#qFb').textContent='Правильных ответов: '+score+' из '+qs.length;
+      const b=$('#qNext');b.style.display='';b.textContent='Сыграть заново ↺';b.onclick=()=>{b.textContent='Дальше ▶';start()};return;
+    }
+    const q=qs[qi];$('#qCount').textContent='Вопрос '+(qi+1)+' из '+qs.length+' · отвечает команда '+(Teams.act+1);
+    $('#qText').textContent=q.q;
+    const box=$('#qAns');box.innerHTML='';
+    q.o.forEach((o,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=['А','Б','В','Г'][i]+'. '+o.t;
+      b.onclick=()=>{
+        if(locked)return;locked=true;
+        $$('.btn',box).forEach((x,j)=>{if(q.o[j].ok)x.classList.add('ok')});
+        if(o.ok){score++;Teams.award(1);$('#qFb').textContent='✅ Верно! +1 очко';}else{b.classList.add('bad');$('#qFb').textContent='❌ Не совсем. Правильный ответ подсвечен.'}
+        const n=$('#qNext');n.style.display='';n.textContent='Дальше ▶';n.onclick=()=>{qi++;Teams.next();show()};
+      };box.appendChild(b)});
+  }
+  document.addEventListener('slidechange',e=>{if(e.detail.id==='g-quiz')start()});
+})();
+
+/* ============ БЛИЦ ============ */
+(function(){
+  const ST=[
+   ['Энергия фотона тем больше, чем больше частота света.',1],
+   ['Увеличение яркости света увеличивает энергию каждого фотоэлектрона.',0],
+   ['Свет излучается и поглощается порциями — квантами.',1],
+   ['Красный свет вызывает фотоэффект у цинка.',0],
+   ['Фотон обладает импульсом.',1],
+   ['Масса покоя фотона равна массе электрона.',0],
+   ['Фотоэффект можно полностью объяснить волновой теорией света.',0],
+   ['Фотоны ультрафиолета несут больше энергии, чем фотоны видимого света.',1],
+   ['Фотоэффект практически безинерционен: электроны вылетают сразу.',1],
+   ['Постоянная Планка связывает энергию фотона с частотой света.',1]
+  ];
+  let list,i,timer,left,locked,score;const TOT=8;
+  function start(){list=shuffle(ST);i=0;score=0;show()}
+  function show(){
+    clearInterval(timer);locked=false;$('#bFb').textContent='';
+    if(i>=list.length){$('#bCount').textContent='Игра окончена';$('#bText').textContent='Верных ответов: '+score+' из '+list.length;$('#bBar').style.width='0';
+      $('#bFb').innerHTML='<button class="btn pri" id="bAgain">Сыграть заново ↺</button>';$('#bAgain').onclick=start;return}
+    $('#bCount').textContent='Утверждение '+(i+1)+' из '+list.length+' · отвечает команда '+(Teams.act+1);
+    $('#bText').textContent=list[i][0];left=TOT;$('#bBar').style.width='100%';$('#bBar').style.background='var(--grn)';
+    timer=setInterval(()=>{left-=.1;$('#bBar').style.width=Math.max(0,left/TOT*100)+'%';if(left<TOT*.35)$('#bBar').style.background='var(--red)';if(left<=0)answer(null)},100);
+  }
+  function answer(v){
+    if(locked)return;locked=true;clearInterval(timer);
+    const ok=list[i][1];
+    if(v===null){$('#bFb').textContent='⏰ Время вышло! Правильно: '+(ok?'верно':'неверно')+'.'}
+    else if(v===ok){score++;Teams.award(1);$('#bFb').textContent='✅ Верно! +1 очко'}
+    else $('#bFb').textContent='❌ Нет. Правильно: '+(ok?'верно':'неверно')+'.';
+    setTimeout(()=>{if(slides[cur].id!=='g-blitz')return;i++;Teams.next();show()},1800);
+  }
+  $('#bT').onclick=()=>answer(1);$('#bF').onclick=()=>answer(0);
+  document.addEventListener('slidechange',e=>{if(e.detail.id==='g-blitz')start();else clearInterval(timer)});
+})();
+
+/* ============ СОРТИРОВКА ============ */
+(function(){
+  const C=[['Интерференция','w'],['Дифракция','w'],['Поляризация','w'],['Красная граница','q'],['Фотоэффект','q'],['Давление света на тело — передача импульса фотонов','q'],['Свет огибает препятствие','w'],['Задерживающее напряжение не зависит от яркости','q']];
+  let sel=null,left;
+  function start(){
+    sel=null;left=C.length;$('#sFb').textContent='';$('#binW').innerHTML='';$('#binQ').innerHTML='';
+    const p=$('#sPool');p.innerHTML='';
+    shuffle(C).forEach(([t,k])=>{const b=document.createElement('button');b.className='pcard';b.textContent=t;b.dataset.k=k;
+      b.onclick=()=>{$$('.pcard.sel').forEach(x=>x.classList.remove('sel'));sel=b;b.classList.add('sel')};p.appendChild(b)});
+  }
+  $$('.bin').forEach(bin=>bin.onclick=()=>{
+    if(!sel){$('#sFb').textContent='Сначала коснитесь карточки 👆';return}
+    const ok=sel.dataset.k===bin.dataset.k;
+    if(ok){Teams.award(1);const t=sel;t.classList.remove('sel');t.onclick=null;$(bin.dataset.k==='w'?'#binW':'#binQ').appendChild(t);sel=null;left--;$('#sFb').textContent='✅ Верно! +1 очко';Teams.next();
+      if(!left){$('#sFb').textContent='🏁 Все карточки разложены!'}}
+    else{const t=sel;t.classList.add('shake');setTimeout(()=>t.classList.remove('shake'),450);$('#sFb').textContent='❌ Подумайте ещё: это свойство проявляется в другой группе';Teams.next()}
+  });
+  $('#sAgain').onclick=start;
+  document.addEventListener('slidechange',e=>{if(e.detail.id==='g-sort')start()});
+})();
+
+/* ============ ЗАДАЧИ ============ */
+(function(){
+  const M=[['цезий',1.9],['натрий',2.3],['цинк',4.3],['медь',4.7],['платина',5.65]];
+  const L=[200,220,250,280,300,320,350,400,450,500,550,600,650,700];
+  let m,l;
+  function make(){
+    m=M[Math.random()*M.length|0];l=L[Math.random()*L.length|0];
+    $('#tText').innerHTML='Металл: <b class="hl2">'+m[0]+'</b> (A = '+fmt(m[1])+' эВ). На него падает свет с длиной волны <b class="hl1">'+l+' нм</b>.<br>Будет ли фотоэффект? Если да — найдите энергию электронов.';
+    $('#tSol').style.display='none';
+  }
+  $('#tNew').onclick=make;
+  $('#tShow').onclick=()=>{
+    const e=1240/l,k=e-m[1];
+    $('#tSol').innerHTML='E = 1240 / '+l+' = <b>'+fmt(e)+' эВ</b>; A = '+fmt(m[1])+' эВ<br>'+(k>0?'E &gt; A → фотоэффект <b class="hl3">есть</b>. E<sub>k</sub> = '+fmt(e)+' − '+fmt(m[1])+' = <b class="hl3">'+fmt(k)+' эВ</b>':'E &lt; A → фотоэффекта <b class="hl5">нет</b>. Красная граница для этого металла λₘₐₓ = '+Math.round(1240/m[1])+' нм.');
+    $('#tSol').style.display='block';
+  };
+  document.addEventListener('slidechange',e=>{if(e.detail.id==='g-task')make()});
+})();
+
+/* ============ ИТОГИ: смайлики ============ */
+$$('#emo button').forEach(b=>b.onclick=()=>{const s=$('small',b);s.textContent=+s.textContent+1});
+
+/* ============ МАРКЕР ============ */
+const pc=$('#pen'),px=pc.getContext('2d'),pal=$('#pal');
+let pen=false,penCol='#ffffff',penW=6,strokes=new Map();
+function fit(){const r=window.devicePixelRatio||1;pc.width=innerWidth*r;pc.height=innerHeight*r;px.setTransform(r,0,0,r,0,0);px.lineCap='round';px.lineJoin='round'}
+fit();addEventListener('resize',fit);
+function clearPen(){px.clearRect(0,0,pc.width,pc.height)}
+const COLORS=['#ffffff','#ffd24a','#ff6b6b','#4fd1ff','#4ade80'];
+COLORS.forEach(c=>{const b=document.createElement('button');b.className='c';b.style.background=c;b.onclick=()=>{penCol=c;penW=6;paletteUi()};b.dataset.c=c;pal.appendChild(b)});
+const er=document.createElement('button');er.className='btn';er.textContent='🧽';er.onclick=()=>{penCol='erase';penW=40;paletteUi()};pal.appendChild(er);
+const cl=document.createElement('button');cl.className='btn';cl.textContent='🗑';cl.onclick=clearPen;pal.appendChild(cl);
+function paletteUi(){$$('.c',pal).forEach(b=>b.classList.toggle('on',b.dataset.c===penCol));er.classList.toggle('on',penCol==='erase')}
+paletteUi();
+function togglePen(){pen=!pen;pc.classList.toggle('on',pen);pal.classList.toggle('show',pen);$('#bPen').classList.toggle('pri',pen)}
+$('#bPen').onclick=togglePen;
+pc.addEventListener('pointerdown',e=>{if(!pen)return;pc.setPointerCapture(e.pointerId);strokes.set(e.pointerId,{x:e.clientX,y:e.clientY});line(e.clientX,e.clientY,e.clientX+.1,e.clientY)});
+pc.addEventListener('pointermove',e=>{const s=strokes.get(e.pointerId);if(!s)return;line(s.x,s.y,e.clientX,e.clientY);s.x=e.clientX;s.y=e.clientY});
+['pointerup','pointercancel'].forEach(t=>pc.addEventListener(t,e=>strokes.delete(e.pointerId)));
+function line(x1,y1,x2,y2){px.globalCompositeOperation=penCol==='erase'?'destination-out':'source-over';px.strokeStyle=penCol==='erase'?'#000':penCol;px.lineWidth=penW;px.beginPath();px.moveTo(x1,y1);px.lineTo(x2,y2);px.stroke()}
+
+progress();
+</script>
+</body>
+</html>
